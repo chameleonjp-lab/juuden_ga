@@ -1,0 +1,1881 @@
+<!doctype html>
+<!-- latest: juden_ga_ranking_reviewed_v20260531 -->
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>充電ｶﾞｯ</title>
+<link rel="canonical" href="https://chameleonjp-lab.github.io/juuden_ga/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chameleonjp-lab.github.io/juuden_ga/">
+<meta property="og:title" content="充電ｶﾞｯ">
+<meta property="og:description" content="マスターの宣言を見て、より低いバッテリー残量のカードで勝負しよう。">
+<meta property="og:image" content="https://chameleonjp-lab.github.io/juuden_ga/social-card-7233a01f.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="充電ｶﾞｯ。濃い背景に、バッテリー残量58%と23%のカード。">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="充電ｶﾞｯ">
+<meta name="twitter:description" content="マスターの宣言を見て、より低いバッテリー残量のカードで勝負しよう。">
+<meta name="twitter:image" content="https://chameleonjp-lab.github.io/juuden_ga/social-card-7233a01f.jpg">
+<meta name="twitter:image:alt" content="充電ｶﾞｯ。濃い背景に、バッテリー残量58%と23%のカード。">
+  <style>
+    :root {
+      --bg: #101418;
+      --panel: #1b222a;
+      --panel-2: #222b34;
+      --text: #f4f7fb;
+      --muted: #b8c2cc;
+      --accent: #74f28a;
+      --accent-2: #f2d574;
+      --danger: #ff7575;
+      --line: rgba(255, 255, 255, 0.14);
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+      --radius: 20px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(116, 242, 138, 0.18), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(242, 213, 116, 0.14), transparent 34%),
+        var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Segoe UI", sans-serif;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    .btn,
+    .retire-btn,
+    .battery-card,
+    .slot,
+    .message-panel,
+    .hand-panel {
+      touch-action: manipulation;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: calc(14px + var(--safe-top)) 12px calc(14px + var(--safe-bottom));
+      display: flex;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      min-height: calc(100dvh - 28px - var(--safe-top) - var(--safe-bottom));
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .center-screen {
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .card-panel {
+      width: 100%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)), var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .title {
+      margin: 0 0 8px;
+      font-size: clamp(34px, 10vw, 48px);
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .best-box,
+    .online-box,
+    .ranking-box {
+      margin: 16px 0 0;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(116, 242, 138, 0.1);
+      border: 1px solid rgba(116, 242, 138, 0.24);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .online-box,
+    .ranking-box {
+      background: rgba(255, 255, 255, 0.055);
+      border-color: var(--line);
+      font-weight: 600;
+    }
+
+    .online-title,
+    .ranking-title {
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--accent-2);
+    }
+
+    .online-status,
+    .ranking-status {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .online-stats {
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .best-update {
+      margin-top: 4px;
+      color: var(--accent);
+      font-weight: 900;
+    }
+
+    .note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .button-row {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .button-row.hidden {
+      display: none;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 48px;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn.primary {
+      background: linear-gradient(180deg, #88ff9a, #43d963);
+      color: #071209;
+      border: 0;
+      box-shadow: 0 10px 28px rgba(67, 217, 99, 0.25);
+    }
+
+    .btn.danger {
+      color: #fff;
+      background: rgba(255, 117, 117, 0.18);
+      border-color: rgba(255, 117, 117, 0.34);
+    }
+
+    .btn:active,
+    .retire-btn:active,
+    .battery-card:active {
+      transform: translateY(1px);
+    }
+
+    .game-screen {
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 42px;
+    }
+
+    .status-pill {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      min-width: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .retire-btn {
+      min-height: 36px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 117, 117, 0.4);
+      background: rgba(255, 117, 117, 0.14);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .master-panel,
+    .table-panel,
+    .message-panel,
+    .hand-panel {
+      background: rgba(27, 34, 42, 0.86);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 10px;
+    }
+
+    .master-panel {
+      text-align: center;
+      min-height: 128px;
+    }
+
+    .aa {
+      margin: 0 auto;
+      max-width: 100%;
+      overflow: hidden;
+      white-space: pre;
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Courier New", monospace;
+      font-size: clamp(11px, 3vw, 15px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      text-align: left;
+      display: block;
+      width: max-content;
+    }
+
+    .declaration {
+      margin: 10px auto 0;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 9px 14px;
+      border-radius: 18px;
+      background: rgba(242, 213, 116, 0.12);
+      border: 1px solid rgba(242, 213, 116, 0.24);
+      font-size: 14px;
+      font-weight: 900;
+      white-space: pre-line;
+      line-height: 1.25;
+    }
+
+    .master-count {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .table-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .slot-wrap {
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+    }
+
+    .slot-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .slot {
+      width: 100%;
+      min-height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px dashed rgba(255, 255, 255, 0.22);
+    }
+
+    .message-panel {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 900;
+      color: var(--accent-2);
+      white-space: pre-line;
+    }
+
+    .hand-panel {
+      padding: 10px;
+    }
+
+    .hand-title {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .hand-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .battery-card {
+      min-height: 78px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 2px;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .battery-card.selected {
+      outline: 3px solid rgba(116, 242, 138, 0.9);
+      background: rgba(116, 242, 138, 0.16);
+      transform: translateY(-2px);
+    }
+
+    .battery-card.disabled {
+      pointer-events: none;
+      opacity: 0.72;
+    }
+
+    .battery-face {
+      line-height: 1;
+      letter-spacing: 0;
+      text-align: center;
+      font-weight: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .battery-icon {
+      font-size: clamp(20px, 5.2vw, 28px);
+      line-height: 1;
+    }
+
+    .battery-percent {
+      font-size: clamp(28px, 7.4vw, 40px);
+      line-height: 1;
+    }
+
+    .battery-card.small {
+      width: 72px;
+      min-height: 82px;
+      pointer-events: none;
+    }
+
+    .battery-card.small .battery-percent {
+      font-size: clamp(26px, 6.6vw, 36px);
+    }
+
+    .battery-card.back .battery-face {
+      color: var(--accent-2);
+    }
+
+    .countdown-number {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(80px, 24vw, 130px);
+      line-height: 1;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 12px 30px rgba(67, 217, 99, 0.28);
+    }
+
+    .countdown-text {
+      margin: 14px 0 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .result-title {
+      margin: 0 0 12px;
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .result-aa {
+      margin: 0 auto 14px;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+      font-size: clamp(9px, 2.35vw, 12px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      color: var(--text);
+      text-align: left;
+      display: block;
+      width: max-content;
+      max-width: none;
+      overflow: visible;
+      white-space: pre;
+    }
+
+    .result-stats {
+      display: grid;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .stat-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid var(--line);
+      line-height: 1.4;
+    }
+
+    .stat-line strong {
+      text-align: right;
+    }
+
+    .ranking-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .ranking-tab {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .ranking-tab.active {
+      background: rgba(116, 242, 138, 0.16);
+      color: var(--text);
+      border-color: rgba(116, 242, 138, 0.36);
+    }
+
+    .ranking-panel {
+      display: none;
+    }
+
+    .ranking-panel.active {
+      display: block;
+    }
+
+    .ranking-subtitle {
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .ranking-list {
+      margin: 0;
+      padding-left: 22px;
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .name-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.62);
+    }
+
+    .name-modal.active {
+      display: flex;
+    }
+
+    .name-card {
+      width: min(100%, 420px);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .name-title {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    .name-text {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .name-input {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .name-input:focus {
+      border-color: rgba(116, 242, 138, 0.7);
+      box-shadow: 0 0 0 3px rgba(116, 242, 138, 0.14);
+    }
+
+    .name-error {
+      min-height: 20px;
+      margin-top: 8px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(18px + var(--safe-bottom));
+      transform: translateX(-50%) translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(244, 247, 251, 0.95);
+      color: #101418;
+      font-size: 13px;
+      font-weight: 800;
+      transition: opacity 160ms ease, transform 160ms ease;
+      z-index: 40;
+      white-space: nowrap;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+
+    #homeScreen {
+      overflow: hidden;
+    }
+
+    #homeScreen .card-panel {
+      max-height: 100%;
+    }
+
+    @media (max-height: 700px) {
+      #homeScreen .card-panel {
+        padding: 14px;
+      }
+
+      #homeScreen .title {
+        font-size: clamp(30px, 9vw, 40px);
+        margin-bottom: 6px;
+      }
+
+      #homeScreen .subtitle {
+        font-size: 13px;
+        line-height: 1.48;
+      }
+
+      #homeScreen .best-box {
+        margin-top: 10px;
+        padding: 9px 10px;
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      #homeScreen .note {
+        margin-top: 8px;
+        font-size: 11px;
+        line-height: 1.42;
+      }
+
+      #homeScreen .button-row {
+        margin-top: 10px;
+        gap: 8px;
+      }
+
+      #homeScreen .btn {
+        min-height: 42px;
+        padding-top: 9px;
+        padding-bottom: 9px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .app {
+        padding-left: 9px;
+        padding-right: 9px;
+      }
+
+      .card-panel {
+        padding: 15px;
+      }
+
+      .master-panel,
+      .table-panel,
+      .message-panel,
+      .hand-panel {
+        padding: 8px;
+      }
+
+      .hand-grid {
+        gap: 6px;
+      }
+
+      .battery-card {
+        min-height: 70px;
+        border-radius: 12px;
+      }
+
+      .slot {
+        min-height: 86px;
+      }
+
+      .stat-line {
+        padding: 9px 10px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section id="homeScreen" class="screen center-screen active" aria-label="ホーム画面">
+      <div class="card-panel">
+        <h1 class="title">充電ｶﾞｯ</h1>
+        <p class="subtitle">
+          マスターの宣言を見て、より低いバッテリー残量を出そう。<br>
+          少ないほどすごい。残量が同じなら勝敗なし。<br>
+          手札が少なくなると充電してカードが追加されます。<br>
+          10回勝負。同点なら延長戦です。
+        </p>
+
+        <div id="bestBox" class="best-box">ベストスコア：まだありません</div>
+
+        <p class="note">
+          ランキング登録には名前を使います。名前はこのブラウザ内に保存されます。<br>
+          通信に失敗しても、ゲーム結果はそのまま表示されます。
+        </p>
+
+        <div class="button-row">
+          <button id="startBtn" class="btn primary" type="button">ゲームスタート</button>
+          <button id="shareGameBtn" class="btn" type="button">ゲームをシェア</button>
+          <a class="btn" href="https://chameleonjp.codeberg.page/chameleonjp_lab/">他のゲームで遊ぶ</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="countdownScreen" class="screen center-screen" aria-label="カウントダウン画面">
+      <div class="card-panel">
+        <p id="countdownNumber" class="countdown-number">3</p>
+        <p class="countdown-text">準備してください</p>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen" aria-label="ゲーム画面">
+      <div class="topbar">
+        <div class="status-pill">
+          <span id="roundInfo" class="pill">1回戦</span>
+          <span id="scoreInfo" class="pill">0勝0敗</span>
+          <span id="sameInfo" class="pill">同残量0回</span>
+        </div>
+        <button id="retireBtn" class="retire-btn" type="button">リタイア</button>
+      </div>
+
+      <div class="master-panel">
+        <pre id="masterAA" class="aa"></pre>
+        <div id="declaration" class="declaration">マスターの宣言：---</div>
+        <div id="masterCount" class="master-count">マスター残り：10枚</div>
+      </div>
+
+      <div class="table-panel" aria-label="場">
+        <div class="slot-wrap">
+          <div class="slot-label">マスター</div>
+          <div id="masterSlot" class="slot"></div>
+        </div>
+        <div class="slot-wrap">
+          <div class="slot-label">あなた</div>
+          <div id="playerSlot" class="slot"></div>
+        </div>
+      </div>
+
+      <div id="messageBox" class="message-panel">カードを選んでください</div>
+
+      <div class="hand-panel">
+        <p class="hand-title">あなたの手札</p>
+        <div id="playerHand" class="hand-grid"></div>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen center-screen" aria-label="結果画面">
+      <div class="card-panel">
+        <pre id="resultAA" class="aa result-aa" aria-hidden="true"></pre>
+        <h2 id="resultTitle" class="result-title">結果</h2>
+        <div id="resultStats" class="result-stats"></div>
+
+        <div id="onlineBox" class="online-box">
+          <div class="online-title">オンライン記録</div>
+          <div id="supabaseStatus" class="online-status">結果送信待ち</div>
+          <div id="onlineStats" class="online-stats"></div>
+        </div>
+
+        <div id="rankingBox" class="ranking-box">
+          <div class="ranking-title">ランキング TOP 3</div>
+          <div class="ranking-tabs" role="tablist" aria-label="ランキング切り替え">
+            <button id="bestRankingTab" class="ranking-tab active" type="button" aria-selected="true">最高スコア</button>
+            <button id="firstRankingTab" class="ranking-tab" type="button" aria-selected="false">初挑戦</button>
+          </div>
+
+          <div id="bestRankingPanel" class="ranking-panel active">
+            <div class="ranking-subtitle">最高スコアランキング</div>
+            <div id="bestRankingStatus" class="ranking-status">最高スコアランキング取得待ち</div>
+            <ol id="bestRankingList" class="ranking-list"></ol>
+          </div>
+
+          <div id="firstRankingPanel" class="ranking-panel">
+            <div class="ranking-subtitle">初挑戦ランキング</div>
+            <div id="firstRankingStatus" class="ranking-status">初挑戦ランキング取得待ち</div>
+            <ol id="firstRankingList" class="ranking-list"></ol>
+          </div>
+        </div>
+
+        <div id="resultButtons" class="button-row">
+          <button id="shareResultBtn" class="btn" type="button">ゲーム結果をシェア</button>
+          <button id="restartBtn" class="btn primary" type="button">再ゲーム</button>
+          <button id="endBtn" class="btn" type="button">ゲーム終了（ホームへ戻る）</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="nameModal" class="name-modal" aria-hidden="true">
+    <div class="name-card" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+      <h2 id="nameTitle" class="name-title">名前を入力</h2>
+      <p class="name-text">ランキングに使う名前です。前後の空白は削り、20文字まで保存します。</p>
+      <input id="nameInput" class="name-input" type="text" maxlength="20" autocomplete="nickname" placeholder="20文字まで">
+      <div id="nameError" class="name-error"></div>
+      <div class="button-row">
+        <button id="nameSubmitBtn" class="btn primary" type="button">この名前で始める</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">クリップボードにコピーしました</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const GAME_TITLE = "充電ｶﾞｯ";
+      const GAME_URL = "https://chameleonjp-lab.github.io/juuden_ga/";
+      const SUPABASE_URL = "https://mlpnjgezrnhdxsxolyzj.supabase.co";
+      const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_drzcy0v97knU6FgjqSgBHw_0A9XPdFM";
+      const GAME_SLUG = "juden_ga";
+      const CLIENT_VERSION = "juden-ga-ranking-v1";
+      const SCORE_UNIT = "点";
+      const SCORE_SCALE = 1;
+      const SCORE_DECIMALS = 0;
+      const BEST_KEY = "juuden_gah_best_v11";
+      const LAST_RETIRE_KEY = "juuden_gah_last_retire_v11";
+      const PLAYER_NAME_STORAGE_KEY = "juden_ga_player_name_v1";
+
+      const masterNormalAA =
+`  ∧＿∧
+（　´∀｀）＜　ぬるぽ`;
+
+      const masterWinAA =
+`　　Λ＿Λ　　　　＼＼
+　 （　・∀・）　　　|　|　ｶﾞｯ
+　と　　　　）　 　 |　|
+　　 Ｙ　/ノ　　　　 人
+　　　 /　）　 　 ＜ 　＞_Λ ∩
+　　 ＿/し'　／／.  Ｖ｀Д´）/
+　（＿フ彡　　　　　 　　　/　`;
+
+      const playerWinAA =
+`　　  ∧＿∧
+　 （　・∀・） 　ｽｶｯ
+　と　　　　）
+　　 Ｙ　/ノ　　|　|　＼＼
+　　　 /　）　 /　/
+　 ＿/し'　／／／￣~~~ ヽﾏﾄﾘｸｰｽ
+　（＿フ彡　　　|　| し( 、 Ａ ,）つ
+　　　　　　　 （＿ﾉ_.ﾉ   Ｖ￣Ｖ`;
+
+      const $ = (id) => document.getElementById(id);
+
+      const homeScreen = $("homeScreen");
+      const countdownScreen = $("countdownScreen");
+      const gameScreen = $("gameScreen");
+      const resultScreen = $("resultScreen");
+      const bestBox = $("bestBox");
+      const startBtn = $("startBtn");
+      const shareGameBtn = $("shareGameBtn");
+      const countdownNumber = $("countdownNumber");
+      const roundInfo = $("roundInfo");
+      const scoreInfo = $("scoreInfo");
+      const sameInfo = $("sameInfo");
+      const retireBtn = $("retireBtn");
+      const masterAA = $("masterAA");
+      const declaration = $("declaration");
+      const masterCount = $("masterCount");
+      const masterSlot = $("masterSlot");
+      const playerSlot = $("playerSlot");
+      const messageBox = $("messageBox");
+      const playerHand = $("playerHand");
+      const resultAA = $("resultAA");
+      const resultTitle = $("resultTitle");
+      const resultStats = $("resultStats");
+      const onlineBox = $("onlineBox");
+      const rankingBox = $("rankingBox");
+      const supabaseStatus = $("supabaseStatus");
+      const onlineStats = $("onlineStats");
+      const bestRankingTab = $("bestRankingTab");
+      const firstRankingTab = $("firstRankingTab");
+      const bestRankingPanel = $("bestRankingPanel");
+      const firstRankingPanel = $("firstRankingPanel");
+      const bestRankingStatus = $("bestRankingStatus");
+      const firstRankingStatus = $("firstRankingStatus");
+      const bestRankingList = $("bestRankingList");
+      const firstRankingList = $("firstRankingList");
+      const resultButtons = $("resultButtons");
+      const shareResultBtn = $("shareResultBtn");
+      const restartBtn = $("restartBtn");
+      const endBtn = $("endBtn");
+      const nameModal = $("nameModal");
+      const nameInput = $("nameInput");
+      const nameError = $("nameError");
+      const nameSubmitBtn = $("nameSubmitBtn");
+      const toast = $("toast");
+
+      let cardId = 0;
+      let state = null;
+      let currentResult = null;
+      let pendingTimer = null;
+      let supabaseClient = null;
+      let playerName = "";
+      let scoreSubmitted = false;
+      let onlineResultInfo = null;
+
+      document.addEventListener("dblclick", (event) => {
+        event.preventDefault();
+      }, { passive: false });
+
+      const declarations = [
+        { label: "3以下を出す", test: (value) => value <= 3 },
+        { label: "4以下を出す", test: (value) => value <= 4 },
+        { label: "6以下を出す", test: (value) => value <= 6 },
+        { label: "5以上を出す", test: (value) => value >= 5 },
+        { label: "7以上を出す", test: (value) => value >= 7 },
+        { label: "8以上を出す", test: (value) => value >= 8 },
+        { label: "偶数を出す", test: (value) => value % 2 === 0 },
+        { label: "奇数を出す", test: (value) => Math.abs(value % 2) === 1 },
+        { label: "4〜7を出す", test: (value) => value >= 4 && value <= 7 }
+      ];
+
+      function createCard(value) {
+        cardId += 1;
+        return { id: cardId, value };
+      }
+
+      function createInitialHand() {
+        return Array.from({ length: 10 }, (_, value) => createCard(value));
+      }
+
+      function randomInt(max) {
+        return Math.floor(Math.random() * max);
+      }
+
+      function randomBatteryValue() {
+        return randomInt(10);
+      }
+
+      function sortHand(hand) {
+        return hand.slice().sort((a, b) => {
+          if (a.value !== b.value) return a.value - b.value;
+          return a.id - b.id;
+        });
+      }
+
+      function fillBatteryFace(face, value, isBack = false) {
+        const icon = document.createElement("span");
+        icon.className = "battery-icon";
+        icon.textContent = "🪫";
+
+        const percent = document.createElement("span");
+        percent.className = "battery-percent";
+        percent.textContent = isBack ? "??" : `${value}%`;
+
+        face.appendChild(icon);
+        face.appendChild(percent);
+      }
+
+      function makeCardElement(card, options = {}) {
+        const button = document.createElement(options.asButton === false ? "div" : "button");
+        button.className = "battery-card";
+        if (options.small) button.classList.add("small");
+        if (options.selected) button.classList.add("selected");
+        if (options.back) button.classList.add("back");
+        if (options.disabled) button.classList.add("disabled");
+        if (options.asButton !== false) {
+          button.type = "button";
+          button.setAttribute("aria-label", `${card.value}%のカード`);
+        }
+        const face = document.createElement("div");
+        face.className = "battery-face";
+        fillBatteryFace(face, card.value, options.back);
+        button.appendChild(face);
+        return button;
+      }
+
+      function showScreen(name) {
+        [homeScreen, countdownScreen, gameScreen, resultScreen].forEach((screen) => {
+          screen.classList.remove("active");
+        });
+        if (name === "home") homeScreen.classList.add("active");
+        if (name === "countdown") countdownScreen.classList.add("active");
+        if (name === "game") gameScreen.classList.add("active");
+        if (name === "result") resultScreen.classList.add("active");
+      }
+
+      function clearTimer() {
+        if (pendingTimer) {
+          clearTimeout(pendingTimer);
+          pendingTimer = null;
+        }
+      }
+
+      function setTimer(callback, ms) {
+        clearTimer();
+        pendingTimer = setTimeout(() => {
+          pendingTimer = null;
+          callback();
+        }, ms);
+      }
+
+      function calculateScore(result) {
+        return result.wins * 100 - result.losses * 40 - result.sameCount * 15;
+      }
+
+      function formatSavedScore(value) {
+        const numberValue = Number(value);
+        if (!Number.isFinite(numberValue)) return `0${SCORE_UNIT}`;
+        const displayValue = numberValue / SCORE_SCALE;
+        const text = SCORE_DECIMALS > 0
+          ? displayValue.toFixed(SCORE_DECIMALS)
+          : Math.round(displayValue).toLocaleString("ja-JP");
+        return `${text}${SCORE_UNIT}`;
+      }
+
+      function cleanName(value) {
+        return String(value || "").trim().slice(0, 20);
+      }
+
+      function loadPlayerName() {
+        try {
+          return cleanName(localStorage.getItem(PLAYER_NAME_STORAGE_KEY));
+        } catch {
+          return "";
+        }
+      }
+
+      function savePlayerName(name) {
+        try {
+          localStorage.setItem(PLAYER_NAME_STORAGE_KEY, name);
+        } catch {
+          // 保存できない場合でも、その回のゲームは進める
+        }
+      }
+
+      function openNameModal() {
+        nameError.textContent = "";
+        nameInput.value = "";
+        nameModal.classList.add("active");
+        nameModal.setAttribute("aria-hidden", "false");
+        setTimeout(() => nameInput.focus(), 50);
+      }
+
+      function closeNameModal() {
+        nameModal.classList.remove("active");
+        nameModal.setAttribute("aria-hidden", "true");
+      }
+
+      function handleStartRequest() {
+        const savedName = loadPlayerName();
+        if (savedName) {
+          playerName = savedName;
+          beginCountdown();
+          return;
+        }
+        openNameModal();
+      }
+
+      function submitNameAndStart() {
+        const name = cleanName(nameInput.value);
+        if (!name) {
+          nameError.textContent = "名前を入力してください";
+          return;
+        }
+        playerName = name;
+        savePlayerName(name);
+        closeNameModal();
+        beginCountdown();
+      }
+
+      function beginCountdown() {
+        clearTimer();
+        currentResult = null;
+        scoreSubmitted = false;
+        onlineResultInfo = null;
+        clearOnlineDisplays();
+        showScreen("countdown");
+        const counts = ["3", "2", "1"];
+        let index = 0;
+        countdownNumber.textContent = counts[index];
+
+        const tick = () => {
+          index += 1;
+          if (index < counts.length) {
+            countdownNumber.textContent = counts[index];
+            setTimer(tick, 1000);
+            return;
+          }
+          setTimer(startGame, 1000);
+        };
+
+        setTimer(tick, 1000);
+      }
+
+      function startGame() {
+        clearTimer();
+        cardId = 0;
+        state = {
+          playerHand: createInitialHand(),
+          masterHand: createInitialHand(),
+          wins: 0,
+          losses: 0,
+          sameCount: 0,
+          chargeCount: 0,
+          resolvedRounds: 0,
+          inOvertime: false,
+          selectedCardId: null,
+          masterCard: null,
+          masterDeclaration: "",
+          playedCard: null,
+          masterRevealed: false,
+          locked: false,
+          finalStatus: null
+        };
+        currentResult = null;
+        resultAA.textContent = "";
+        resultAA.hidden = true;
+        setResultButtonsVisible(true);
+        showScreen("game");
+        prepareTurn();
+      }
+
+      function prepareTurn() {
+        if (!state || state.finalStatus) return;
+
+        state.selectedCardId = null;
+        state.masterCard = null;
+        state.masterDeclaration = "";
+        state.playedCard = null;
+        state.masterRevealed = false;
+        state.locked = false;
+
+        if (state.playerHand.length <= 2 || state.masterHand.length <= 2) {
+          state.locked = true;
+          state.chargeCount += 1;
+          for (let i = 0; i < 2; i += 1) {
+            state.playerHand.push(createCard(randomBatteryValue()));
+            state.masterHand.push(createCard(randomBatteryValue()));
+          }
+          messageBox.textContent = "充電ｶﾞｯ！\nカードを追加！";
+          chooseMasterCard();
+          renderGame();
+          setTimer(() => {
+            state.locked = false;
+            messageBox.textContent = "カードを選んでください";
+            renderGame();
+          }, 900);
+          return;
+        }
+
+        chooseMasterCard();
+        messageBox.textContent = "カードを選んでください";
+        renderGame();
+      }
+
+      function chooseMasterCard() {
+        const index = randomInt(state.masterHand.length);
+        const card = state.masterHand[index];
+        const options = declarations.filter((item) => item.test(card.value));
+        const picked = options[randomInt(options.length)];
+        state.masterCard = card;
+        state.masterDeclaration = picked ? picked.label : "???";
+      }
+
+      function removeCardById(hand, id) {
+        const index = hand.findIndex((card) => card.id === id);
+        if (index === -1) return null;
+        return hand.splice(index, 1)[0];
+      }
+
+      function onCardTap(cardIdValue) {
+        if (!state || state.locked || state.finalStatus) return;
+        const card = state.playerHand.find((item) => item.id === cardIdValue);
+        if (!card) return;
+
+        if (state.selectedCardId !== cardIdValue) {
+          state.selectedCardId = cardIdValue;
+          messageBox.textContent = "もう一度タップで出す";
+          renderGame();
+          return;
+        }
+
+        playSelectedCard();
+      }
+
+      function playSelectedCard() {
+        if (!state || state.locked || !state.selectedCardId || !state.masterCard) return;
+
+        state.locked = true;
+        const playedCard = removeCardById(state.playerHand, state.selectedCardId);
+        const masterPlayed = removeCardById(state.masterHand, state.masterCard.id);
+
+        if (!playedCard || !masterPlayed) {
+          messageBox.textContent = "カード処理で問題が起きました。再ゲームしてください。";
+          renderGame();
+          return;
+        }
+
+        state.playedCard = playedCard;
+        state.masterCard = masterPlayed;
+        state.masterRevealed = true;
+
+        let outcome = "same";
+        if (playedCard.value < masterPlayed.value) {
+          outcome = "win";
+          state.wins += 1;
+          state.resolvedRounds += 1;
+          messageBox.textContent = "WIN！\n充電成功！";
+        } else if (playedCard.value > masterPlayed.value) {
+          outcome = "lose";
+          state.losses += 1;
+          state.resolvedRounds += 1;
+          messageBox.textContent = "LOSE...\n充電失敗";
+        } else {
+          state.sameCount += 1;
+          messageBox.textContent = "BUMP！\n同じ残量。カードだけ消えた。";
+        }
+
+        renderGame();
+
+        if (outcome === "same") {
+          setTimer(prepareTurn, 1050);
+          return;
+        }
+
+        if (state.inOvertime) {
+          finishGame(outcome === "win" ? "win" : "lose");
+          return;
+        }
+
+        if (state.resolvedRounds >= 10) {
+          if (state.wins > state.losses) {
+            finishGame("win");
+            return;
+          }
+          if (state.losses > state.wins) {
+            finishGame("lose");
+            return;
+          }
+
+          state.inOvertime = true;
+          setTimer(() => {
+            messageBox.textContent = "延長戦！\n次に勝った方が勝ち！";
+            prepareTurn();
+          }, 1050);
+          return;
+        }
+
+        setTimer(prepareTurn, 1050);
+      }
+
+      function finishGame(status) {
+        state.finalStatus = status;
+        state.locked = true;
+
+        messageBox.textContent = status === "win"
+          ? "FINAL WIN！\n充電完了！"
+          : "FINAL LOSE...\n充電切れ…";
+
+        renderSlots();
+
+        setTimer(() => {
+          showResult(status);
+        }, 900);
+      }
+
+      function retireGame() {
+        if (!state || state.finalStatus) return;
+        clearTimer();
+        currentResult = {
+          status: "retire",
+          wins: state.wins,
+          losses: state.losses,
+          sameCount: state.sameCount,
+          chargeCount: state.chargeCount,
+          score: null
+        };
+        saveLastRetireIfNeeded();
+        renderResult();
+        showScreen("result");
+      }
+
+      function renderGame() {
+        if (!state) return;
+
+        const roundLabel = state.inOvertime ? "延長戦" : `${Math.min(state.resolvedRounds + 1, 10)}回戦`;
+        roundInfo.textContent = roundLabel;
+        scoreInfo.textContent = `${state.wins}勝${state.losses}敗`;
+        sameInfo.textContent = `同残量${state.sameCount}回`;
+
+        if (!state.finalStatus) {
+          masterAA.textContent = masterNormalAA;
+        }
+
+        declaration.textContent = `マスターの宣言\n${state.masterDeclaration || "---"}`;
+        masterCount.textContent = `マスター残り：${state.masterHand.length}枚`;
+
+        renderSlots();
+        renderPlayerHand();
+      }
+
+      function renderSlots() {
+        masterSlot.innerHTML = "";
+        playerSlot.innerHTML = "";
+
+        if (state && state.masterCard) {
+          const masterCardEl = makeCardElement(state.masterCard, {
+            asButton: false,
+            small: true,
+            back: !state.masterRevealed && !state.finalStatus
+          });
+          masterSlot.appendChild(masterCardEl);
+        }
+
+        if (state && state.playedCard) {
+          const playerCardEl = makeCardElement(state.playedCard, {
+            asButton: false,
+            small: true
+          });
+          playerSlot.appendChild(playerCardEl);
+        }
+      }
+
+      function renderPlayerHand() {
+        playerHand.innerHTML = "";
+        if (!state) return;
+
+        const sorted = sortHand(state.playerHand);
+        sorted.forEach((card) => {
+          const cardEl = makeCardElement(card, {
+            selected: state.selectedCardId === card.id,
+            disabled: state.locked || Boolean(state.finalStatus)
+          });
+          cardEl.addEventListener("click", () => onCardTap(card.id));
+          playerHand.appendChild(cardEl);
+        });
+      }
+
+      function renderResult() {
+        if (!currentResult) return;
+
+        if (currentResult.status === "win") {
+          resultAA.textContent = playerWinAA;
+          resultAA.hidden = false;
+        } else if (currentResult.status === "lose") {
+          resultAA.textContent = masterWinAA;
+          resultAA.hidden = false;
+        } else {
+          resultAA.textContent = "";
+          resultAA.hidden = true;
+        }
+
+        resultStats.innerHTML = "";
+
+        if (currentResult.status === "retire") {
+          resultTitle.textContent = "結果：リタイア";
+          addStat("途中成績", `${currentResult.wins}勝${currentResult.losses}敗`);
+          addStat("同残量", `${currentResult.sameCount}回`);
+          addStat("充電回数", `${currentResult.chargeCount}回`);
+          addStat("今回スコア", "リタイア");
+          onlineBox.style.display = "none";
+          rankingBox.style.display = "none";
+          setResultButtonsVisible(true);
+          return;
+        }
+
+        const isWin = currentResult.status === "win";
+        onlineBox.style.display = "block";
+        rankingBox.style.display = "block";
+        resultTitle.textContent = isWin ? "結果：勝ち" : "結果：負け";
+        addStat("最終成績", `${currentResult.wins}勝${currentResult.losses}敗`);
+        addStat("同残量", `${currentResult.sameCount}回`);
+        addStat("充電回数", `${currentResult.chargeCount}回`);
+        addStat("今回スコア", formatSavedScore(currentResult.score));
+      }
+
+      function addStat(label, value) {
+        const row = document.createElement("div");
+        row.className = "stat-line";
+        const labelEl = document.createElement("span");
+        labelEl.textContent = label;
+        const valueEl = document.createElement("strong");
+        valueEl.textContent = value;
+        row.appendChild(labelEl);
+        row.appendChild(valueEl);
+        resultStats.appendChild(row);
+      }
+
+      function showResult(status) {
+        if (!state) return;
+        currentResult = {
+          status,
+          wins: state.wins,
+          losses: state.losses,
+          sameCount: state.sameCount,
+          chargeCount: state.chargeCount,
+          score: 0
+        };
+        currentResult.score = calculateScore(currentResult);
+        maybeSaveBest(currentResult);
+        renderHomeBest();
+        clearOnlineDisplays();
+        renderResult();
+        showScreen("result");
+        handleOnlineResult(currentResult);
+      }
+
+      function scoreText(record) {
+        if (!record) return "ベストスコア：まだありません";
+        const resultLabel = record.status === "win" ? "勝ち" : "負け";
+        const score = scoreFromRecord(record);
+        return `ベストスコア：${formatSavedScore(score)}（${resultLabel} ${record.wins}勝${record.losses}敗 / 同残量${record.sameCount}回 / 充電${record.chargeCount}回）`;
+      }
+
+      function getBest() {
+        try {
+          const raw = localStorage.getItem(BEST_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function saveBest(record) {
+        try {
+          localStorage.setItem(BEST_KEY, JSON.stringify(record));
+        } catch {
+          // 保存できない場合は、オンライン記録と結果画面の表示を優先する
+        }
+      }
+
+      function scoreFromRecord(record) {
+        if (!record) return null;
+        const savedScore = Number(record.score);
+        if (Number.isFinite(savedScore)) return savedScore;
+
+        const wins = Number(record.wins) || 0;
+        const losses = Number(record.losses) || 0;
+        const sameCount = Number(record.sameCount) || 0;
+        return wins * 100 - losses * 40 - sameCount * 15;
+      }
+
+      function isBetterRecord(candidate, best) {
+        if (!best) return true;
+        const candidateScore = scoreFromRecord(candidate);
+        const bestScore = scoreFromRecord(best);
+        if (!Number.isFinite(candidateScore)) return false;
+        if (!Number.isFinite(bestScore)) return true;
+        return candidateScore > bestScore;
+      }
+
+      function maybeSaveBest(result) {
+        if (!result || result.status === "retire") return;
+        const record = {
+          status: result.status,
+          wins: result.wins,
+          losses: result.losses,
+          sameCount: result.sameCount,
+          chargeCount: result.chargeCount,
+          score: result.score,
+          savedAt: new Date().toISOString()
+        };
+        const best = getBest();
+        if (isBetterRecord(record, best)) {
+          saveBest(record);
+        }
+      }
+
+      function saveLastRetireIfNeeded() {
+        try {
+          localStorage.setItem(LAST_RETIRE_KEY, "1");
+        } catch {}
+      }
+
+      function renderHomeBest() {
+        const best = getBest();
+        bestBox.textContent = scoreText(best);
+
+        if (!best) {
+          const hasRetire = localStorage.getItem(LAST_RETIRE_KEY) === "1";
+          if (hasRetire) {
+            bestBox.textContent = "ベストスコア：まだありません\n前回：リタイア";
+          }
+        }
+      }
+
+      function getSupabaseClient() {
+        if (!window.supabase || !window.supabase.createClient) {
+          throw new Error("Supabaseライブラリを読み込めませんでした");
+        }
+
+        if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY.includes("ここに")) {
+          throw new Error("Supabase Publishable key が未設定です");
+        }
+
+        if (!supabaseClient) {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        }
+
+        return supabaseClient;
+      }
+
+      function clearOnlineDisplays() {
+        supabaseStatus.textContent = "結果送信待ち";
+        onlineStats.innerHTML = "";
+        bestRankingStatus.textContent = "最高スコアランキング取得待ち";
+        firstRankingStatus.textContent = "初挑戦ランキング取得待ち";
+        bestRankingList.innerHTML = "";
+        firstRankingList.innerHTML = "";
+        setRankingTab("best");
+      }
+
+      function normalizeRpcRow(data) {
+        if (Array.isArray(data)) return data[0] || {};
+        return data || {};
+      }
+
+      function normalizeRankingRows(data) {
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.rows)) return data.rows;
+        if (data && Array.isArray(data.data)) return data.data;
+        return [];
+      }
+
+      function pickNumber(row, keys) {
+        for (const key of keys) {
+          if (row && row[key] !== undefined && row[key] !== null && row[key] !== "") {
+            const value = Number(row[key]);
+            if (Number.isFinite(value)) return value;
+          }
+        }
+        return null;
+      }
+
+      function pickBoolean(row, keys) {
+        for (const key of keys) {
+          if (row && row[key] !== undefined && row[key] !== null) {
+            return row[key] === true || row[key] === 1 || row[key] === "1" || row[key] === "true";
+          }
+        }
+        return false;
+      }
+
+      function pickText(row, keys) {
+        for (const key of keys) {
+          if (row && row[key] !== undefined && row[key] !== null && row[key] !== "") {
+            return String(row[key]);
+          }
+        }
+        return "";
+      }
+
+      function escapeText(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function setResultButtonsVisible(visible) {
+        resultButtons.classList.remove("hidden");
+        shareResultBtn.style.display = visible ? "" : "none";
+        restartBtn.style.display = visible ? "" : "none";
+        endBtn.style.display = "";
+      }
+
+      async function submitScore(result) {
+        const client = getSupabaseClient();
+        const scoreForSubmit = Math.round(result.score);
+
+        const { data, error } = await client.rpc("submit_score", {
+          p_display_name: playerName,
+          p_game_slug: GAME_SLUG,
+          p_score: scoreForSubmit,
+          p_client_version: CLIENT_VERSION
+        });
+
+        if (error) throw error;
+
+        const row = normalizeRpcRow(data);
+        const firstScore = pickNumber(row, ["result_first_score", "first_score", "first_try_score", "initial_score", "firstScore"]);
+        const bestScore = pickNumber(row, ["result_best_score", "best_score", "highest_score", "high_score", "max_score", "personal_best", "bestScore"]);
+        const playCount = pickNumber(row, ["result_play_count", "play_count", "total_plays", "plays", "playCount", "count"]);
+        const isFirstPlay = pickBoolean(row, ["is_first_play", "first_play", "isFirstPlay"]);
+        const isNewBest = pickBoolean(row, ["is_new_best", "is_best", "new_best", "best_updated", "personal_best_updated", "bestUpdated"]);
+        const displayBest = pickText(row, ["display_best_score", "best_score_display"]);
+        const displayFirst = pickText(row, ["display_first_score", "first_score_display"]);
+
+        const info = {
+          currentScore: scoreForSubmit,
+          firstScore: firstScore !== null ? firstScore : scoreForSubmit,
+          bestScore: bestScore !== null ? bestScore : scoreForSubmit,
+          playCount,
+          isFirstPlay,
+          isNewBest,
+          displayFirst,
+          displayBest
+        };
+
+        onlineResultInfo = info;
+
+        const messages = [];
+        if (info.isFirstPlay) {
+          messages.push('<div class="best-update">初挑戦スコアを登録しました</div>');
+        }
+        if (info.isNewBest) {
+          messages.push('<div class="best-update">自己ベスト更新！</div>');
+        }
+
+        supabaseStatus.textContent = "ランキング送信に成功しました";
+        onlineStats.innerHTML = `
+          <div>今回スコア：${formatSavedScore(info.currentScore)}</div>
+          <div>初回スコア：${escapeText(info.displayFirst || formatSavedScore(info.firstScore))}</div>
+          <div>最高スコア：${escapeText(info.displayBest || formatSavedScore(info.bestScore))}</div>
+          <div>プレイ回数：${info.playCount !== null ? info.playCount + "回" : "取得中"}</div>
+          ${messages.join("")}
+        `;
+
+        return info;
+      }
+
+      function renderRankingRows(rows, listEl, statusEl, emptyMessage, scoreKeys, displayKeys) {
+        listEl.innerHTML = "";
+
+        if (!rows.length) {
+          statusEl.textContent = emptyMessage;
+          return;
+        }
+
+        statusEl.textContent = "";
+        rows.slice(0, 3).forEach((row, index) => {
+          const rank = pickNumber(row, ["rank", "ranking", "position", "row_number"]) || index + 1;
+          const name = row.display_name || row.player_name || row.name || row.displayName || "名無し";
+          const displayScore = pickText(row, displayKeys);
+          const rawScore = pickNumber(row, scoreKeys);
+          const score = displayScore || formatSavedScore(rawScore !== null ? rawScore : 0);
+          const li = document.createElement("li");
+          li.innerHTML = `${rank}位　${escapeText(name)}　${escapeText(score)}`;
+          listEl.appendChild(li);
+        });
+      }
+
+      async function loadBestScoreRanking() {
+        const client = getSupabaseClient();
+        const { data, error } = await client.rpc("get_best_score_ranking", {
+          p_game_slug: GAME_SLUG,
+          p_limit: 3
+        });
+
+        if (error) throw error;
+
+        renderRankingRows(
+          normalizeRankingRows(data),
+          bestRankingList,
+          bestRankingStatus,
+          "最高スコアランキングはまだありません",
+          ["score", "best_score", "result_best_score", "highest_score", "high_score", "max_score"],
+          ["display_score", "display_best_score", "score_display", "best_score_display"]
+        );
+      }
+
+      async function loadFirstTryRanking() {
+        const client = getSupabaseClient();
+        const { data, error } = await client.rpc("get_first_try_ranking", {
+          p_game_slug: GAME_SLUG,
+          p_limit: 3
+        });
+
+        if (error) throw error;
+
+        renderRankingRows(
+          normalizeRankingRows(data),
+          firstRankingList,
+          firstRankingStatus,
+          "初挑戦ランキングはまだありません",
+          ["score", "first_score", "first_try_score", "result_first_score", "initial_score"],
+          ["display_score", "display_first_score", "score_display", "first_score_display"]
+        );
+      }
+
+      async function handleOnlineResult(result) {
+        supabaseStatus.textContent = "ランキング送信中…";
+        onlineStats.innerHTML = "";
+        bestRankingStatus.textContent = "最高スコアランキング取得中…";
+        firstRankingStatus.textContent = "初挑戦ランキング取得中…";
+        bestRankingList.innerHTML = "";
+        firstRankingList.innerHTML = "";
+        setRankingTab("best");
+        setResultButtonsVisible(false);
+
+        if (!scoreSubmitted) {
+          scoreSubmitted = true;
+          try {
+            await submitScore(result);
+          } catch (error) {
+            console.warn("submit_score failed", error);
+            supabaseStatus.textContent = "ランキング連携に失敗しました😅";
+            onlineStats.innerHTML = `
+              <div>今回スコア：${formatSavedScore(result.score)}</div>
+              <div>初回スコア：取得できませんでした</div>
+              <div>最高スコア：取得できませんでした</div>
+              <div>プレイ回数：取得できませんでした</div>
+            `;
+          }
+        }
+
+        const rankingTasks = [
+          loadBestScoreRanking().catch((error) => {
+            console.warn("get_best_score_ranking failed", error);
+            bestRankingStatus.textContent = "ランキングの取得に失敗しました";
+            bestRankingList.innerHTML = "";
+          }),
+          loadFirstTryRanking().catch((error) => {
+            console.warn("get_first_try_ranking failed", error);
+            firstRankingStatus.textContent = "ランキングの取得に失敗しました";
+            firstRankingList.innerHTML = "";
+          })
+        ];
+
+        await Promise.allSettled(rankingTasks);
+        setResultButtonsVisible(true);
+      }
+
+      function setRankingTab(type) {
+        const isBest = type === "best";
+        bestRankingTab.classList.toggle("active", isBest);
+        firstRankingTab.classList.toggle("active", !isBest);
+        bestRankingTab.setAttribute("aria-selected", isBest ? "true" : "false");
+        firstRankingTab.setAttribute("aria-selected", !isBest ? "true" : "false");
+        bestRankingPanel.classList.toggle("active", isBest);
+        firstRankingPanel.classList.toggle("active", !isBest);
+      }
+
+      function resultShareText() {
+        if (!currentResult) return `${GAME_TITLE} 結果\n${GAME_URL}`;
+
+        if (currentResult.status === "retire") {
+          return [
+            `${GAME_TITLE} 結果`,
+            "結果：リタイア",
+            `途中成績：${currentResult.wins}勝${currentResult.losses}敗`,
+            `同残量：${currentResult.sameCount}回`,
+            `充電回数：${currentResult.chargeCount}回`,
+            "今回スコア：リタイア",
+            GAME_URL
+          ].join("\n");
+        }
+
+        const label = currentResult.status === "win" ? "勝ち" : "負け";
+        const bestLine = onlineResultInfo && onlineResultInfo.displayBest
+          ? `最高スコア：${onlineResultInfo.displayBest}`
+          : "";
+        return [
+          `${GAME_TITLE} 結果`,
+          `結果：${label}`,
+          `最終成績：${currentResult.wins}勝${currentResult.losses}敗`,
+          `同残量：${currentResult.sameCount}回`,
+          `充電回数：${currentResult.chargeCount}回`,
+          `今回スコア：${formatSavedScore(currentResult.score)}`,
+          bestLine,
+          GAME_URL
+        ].filter(Boolean).join("\n");
+      }
+
+      function gameShareText() {
+        return [
+          GAME_TITLE,
+          "マスターの宣言を見て、より低いバッテリー残量を出そう。",
+          GAME_URL
+        ].join("\n");
+      }
+
+      async function copyText(text) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            fallbackCopy(text);
+          }
+          showToast();
+        } catch {
+          fallbackCopy(text);
+          showToast();
+        }
+      }
+
+      function fallbackCopy(text) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        area.setAttribute("readonly", "");
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        area.style.top = "0";
+        document.body.appendChild(area);
+        area.focus();
+        area.select();
+        document.execCommand("copy");
+        document.body.removeChild(area);
+      }
+
+      function showToast() {
+        toast.classList.add("show");
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 1000);
+      }
+
+      startBtn.addEventListener("click", handleStartRequest);
+      restartBtn.addEventListener("click", handleStartRequest);
+      retireBtn.addEventListener("click", retireGame);
+      nameSubmitBtn.addEventListener("click", submitNameAndStart);
+      nameInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") submitNameAndStart();
+      });
+
+      endBtn.addEventListener("click", () => {
+        clearTimer();
+        renderHomeBest();
+        showScreen("home");
+      });
+
+      shareGameBtn.addEventListener("click", () => copyText(gameShareText()));
+      shareResultBtn.addEventListener("click", () => copyText(resultShareText()));
+      bestRankingTab.addEventListener("click", () => setRankingTab("best"));
+      firstRankingTab.addEventListener("click", () => setRankingTab("first"));
+
+      renderHomeBest();
+      clearOnlineDisplays();
+    })();
+  </script>
+</body>
+</html>

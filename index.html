@@ -559,41 +559,22 @@
       line-height: 1.5;
     }
 
-    .name-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 30;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      background: rgba(0, 0, 0, 0.62);
+    .name-settings {
+      display: grid;
+      gap: 6px;
+      margin: 0 0 14px;
+      text-align: left;
     }
 
-    .name-modal.active {
-      display: flex;
+    .name-settings label {
+      font-weight: 700;
     }
 
-    .name-card {
-      width: min(100%, 420px);
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-    }
-
-    .name-title {
-      margin: 0 0 8px;
-      font-size: 24px;
-      line-height: 1.25;
-    }
-
-    .name-text {
-      margin: 0 0 12px;
+    .name-help {
       color: var(--muted);
+      margin: 0;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .name-input {
@@ -610,14 +591,6 @@
     .name-input:focus {
       border-color: rgba(116, 242, 138, 0.7);
       box-shadow: 0 0 0 3px rgba(116, 242, 138, 0.14);
-    }
-
-    .name-error {
-      min-height: 20px;
-      margin-top: 8px;
-      color: var(--danger);
-      font-size: 13px;
-      font-weight: 800;
     }
 
     .toast {
@@ -744,10 +717,13 @@
 
         <div id="bestBox" class="best-box">ベストスコア：まだありません</div>
 
-        <p class="note">
-          ランキング登録には名前を使います。名前はこのブラウザ内に保存されます。<br>
-          通信に失敗しても、ゲーム結果はそのまま表示されます。
-        </p>
+        <div class="name-settings">
+          <label for="nameInput">名前（任意）</label>
+          <input id="nameInput" class="name-input" type="text" maxlength="20" autocomplete="nickname"
+                 aria-describedby="nameHelp" placeholder="20文字まで">
+          <p id="nameHelp" class="name-help">名前を入れて始めるとランキングに登録されます。空欄でも遊べます。</p>
+        </div>
+        <p class="note">通信に失敗しても、ゲーム結果はそのまま表示されます。</p>
 
         <div class="button-row">
           <button id="startBtn" class="btn primary" type="button">ゲームスタート</button>
@@ -840,18 +816,6 @@
     </section>
   </main>
 
-  <div id="nameModal" class="name-modal" aria-hidden="true">
-    <div class="name-card" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
-      <h2 id="nameTitle" class="name-title">名前を入力</h2>
-      <p class="name-text">ランキングに使う名前です。前後の空白は削り、20文字まで保存します。</p>
-      <input id="nameInput" class="name-input" type="text" maxlength="20" autocomplete="nickname" placeholder="20文字まで">
-      <div id="nameError" class="name-error"></div>
-      <div class="button-row">
-        <button id="nameSubmitBtn" class="btn primary" type="button">この名前で始める</button>
-      </div>
-    </div>
-  </div>
-
   <div id="toast" class="toast" role="status" aria-live="polite">クリップボードにコピーしました</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -935,10 +899,7 @@
       const shareResultBtn = $("shareResultBtn");
       const restartBtn = $("restartBtn");
       const endBtn = $("endBtn");
-      const nameModal = $("nameModal");
       const nameInput = $("nameInput");
-      const nameError = $("nameError");
-      const nameSubmitBtn = $("nameSubmitBtn");
       const toast = $("toast");
 
       let cardId = 0;
@@ -1080,38 +1041,9 @@
         }
       }
 
-      function openNameModal() {
-        nameError.textContent = "";
-        nameInput.value = "";
-        nameModal.classList.add("active");
-        nameModal.setAttribute("aria-hidden", "false");
-        setTimeout(() => nameInput.focus(), 50);
-      }
-
-      function closeNameModal() {
-        nameModal.classList.remove("active");
-        nameModal.setAttribute("aria-hidden", "true");
-      }
-
       function handleStartRequest() {
-        const savedName = loadPlayerName();
-        if (savedName) {
-          playerName = savedName;
-          beginCountdown();
-          return;
-        }
-        openNameModal();
-      }
-
-      function submitNameAndStart() {
-        const name = cleanName(nameInput.value);
-        if (!name) {
-          nameError.textContent = "名前を入力してください";
-          return;
-        }
-        playerName = name;
-        savePlayerName(name);
-        closeNameModal();
+        playerName = cleanName(nameInput.value);
+        if (playerName) savePlayerName(playerName);
         beginCountdown();
       }
 
@@ -1437,6 +1369,7 @@
         if (!state) return;
         currentResult = {
           status,
+          submitName: playerName,
           wins: state.wins,
           losses: state.losses,
           sameCount: state.sameCount,
@@ -1614,11 +1547,12 @@
       }
 
       async function submitScore(result) {
+        if (!result.submitName) return;
         const client = getSupabaseClient();
         const scoreForSubmit = Math.round(result.score);
 
         const { data, error } = await client.rpc("submit_score", {
-          p_display_name: playerName,
+          p_display_name: result.submitName,
           p_game_slug: GAME_SLUG,
           p_score: scoreForSubmit,
           p_client_version: CLIENT_VERSION
@@ -1728,7 +1662,9 @@
       }
 
       async function handleOnlineResult(result) {
-        supabaseStatus.textContent = "ランキング送信中…";
+        supabaseStatus.textContent = result.submitName
+          ? "ランキング送信中…"
+          : "名前なしで遊んだため、スコアは送信されません。";
         onlineStats.innerHTML = "";
         bestRankingStatus.textContent = "最高スコアランキング取得中…";
         firstRankingStatus.textContent = "初挑戦ランキング取得中…";
@@ -1737,7 +1673,7 @@
         setRankingTab("best");
         setResultButtonsVisible(false);
 
-        if (!scoreSubmitted) {
+        if (result.submitName && !scoreSubmitted) {
           scoreSubmitted = true;
           try {
             await submitScore(result);
@@ -1857,10 +1793,6 @@
       startBtn.addEventListener("click", handleStartRequest);
       restartBtn.addEventListener("click", handleStartRequest);
       retireBtn.addEventListener("click", retireGame);
-      nameSubmitBtn.addEventListener("click", submitNameAndStart);
-      nameInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") submitNameAndStart();
-      });
 
       endBtn.addEventListener("click", () => {
         clearTimer();
@@ -1873,6 +1805,7 @@
       bestRankingTab.addEventListener("click", () => setRankingTab("best"));
       firstRankingTab.addEventListener("click", () => setRankingTab("first"));
 
+      nameInput.value = loadPlayerName();
       renderHomeBest();
       clearOnlineDisplays();
     })();

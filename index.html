@@ -1884,8 +1884,27 @@
 
       nameInput.value = loadPlayerName();
       languageSelect.addEventListener("change", () => applyLocale(languageSelect.value, true));
-      let initialLocale = "ja";
-      try { initialLocale = localStorage.getItem(languageKey) || "ja"; } catch {}
+      let initialLocale = null;
+      try {
+        const savedLocale = localStorage.getItem(languageKey);
+        if (Object.hasOwn(localeText, savedLocale)) initialLocale = savedLocale;
+      } catch {}
+      if (!initialLocale) {
+        const browser = typeof navigator === "undefined" ? null : navigator;
+        const ordered = [...(browser?.languages || []), browser?.language]
+          .filter(value => typeof value === "string" && value.trim());
+        const match = value => {
+          const [base, ...subtags] = value.trim().toLowerCase().split("-");
+          if (base === "zh") {
+            if (subtags[0] === "hans") return "zh-Hans";
+            if (subtags[0] === "hant") return "zh-Hant";
+            return ["tw", "hk", "mo"].includes(subtags[0]) ? "zh-Hant" : "zh-Hans";
+          }
+          if (base === "pt") return "pt-BR";
+          return Object.hasOwn(localeText, base) ? base : null;
+        };
+        initialLocale = ordered.map(match).find(Boolean) || (ordered.length ? "en" : "ja");
+      }
       applyLocale(initialLocale);
       clearOnlineDisplays();
     })();

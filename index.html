@@ -559,41 +559,38 @@
       line-height: 1.5;
     }
 
-    .name-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 30;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      background: rgba(0, 0, 0, 0.62);
+    .ranking-list {
+      padding-left: 0;
+      list-style: none;
     }
 
-    .name-modal.active {
-      display: flex;
+    .ranking-retry {
+      min-height: 44px;
+      margin-top: 8px;
+      padding-inline: 14px;
     }
 
-    .name-card {
-      width: min(100%, 420px);
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      padding: 18px;
+    .ranking-retry:focus-visible {
+      outline: 3px solid #124b95;
+      outline-offset: 2px;
     }
 
-    .name-title {
-      margin: 0 0 8px;
-      font-size: 24px;
-      line-height: 1.25;
+    .name-settings {
+      display: grid;
+      gap: 6px;
+      margin: 0 0 14px;
+      text-align: left;
     }
 
-    .name-text {
-      margin: 0 0 12px;
+    .name-settings label {
+      font-weight: 700;
+    }
+
+    .name-help {
       color: var(--muted);
+      margin: 0;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .name-input {
@@ -610,14 +607,6 @@
     .name-input:focus {
       border-color: rgba(116, 242, 138, 0.7);
       box-shadow: 0 0 0 3px rgba(116, 242, 138, 0.14);
-    }
-
-    .name-error {
-      min-height: 20px;
-      margin-top: 8px;
-      color: var(--danger);
-      font-size: 13px;
-      font-weight: 800;
     }
 
     .toast {
@@ -647,6 +636,33 @@
 
     #homeScreen {
       overflow: hidden;
+    }
+
+    .app { position: relative; }
+    #homeScreen { padding-top: 72px; }
+    .language-picker {
+      position: absolute;
+      top: calc(14px + var(--safe-top));
+      left: 12px;
+      z-index: 1;
+      display: grid;
+      gap: 4px;
+      max-width: calc(100% - 24px);
+      font-size: 13px;
+    }
+    .language-picker select {
+      min-height: 44px;
+      max-width: 100%;
+      padding: 4px 8px;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+    }
+    .language-picker select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
     #homeScreen .card-panel {
@@ -728,131 +744,155 @@
         font-size: 14px;
       }
     }
-  </style>
+  
+    #homeShareButton, #resultShareButton, #shareGameBtn, #shareResultBtn {
+      background: #000;
+      color: #fff;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+</style>
 </head>
 <body>
   <main class="app">
-    <section id="homeScreen" class="screen center-screen active" aria-label="ホーム画面">
+    <section id="homeScreen" class="screen center-screen active" aria-label="ホーム画面" data-aria="home">
+      <div class="language-picker">
+        <label for="languageSelect" data-text="language">言語</label>
+        <select id="languageSelect">
+          <option value="ja" lang="ja">日本語</option>
+          <option value="en" lang="en">English</option>
+          <option value="es" lang="es">Español</option>
+          <option value="pt-BR" lang="pt-BR">Português (Brasil)</option>
+          <option value="zh-Hans" lang="zh-Hans">简体中文</option>
+          <option value="fr" lang="fr">Français</option>
+          <option value="de" lang="de">Deutsch</option>
+          <option value="ko" lang="ko">한국어</option>
+          <option value="ru" lang="ru">Русский</option>
+          <option value="it" lang="it">Italiano</option>
+          <option value="zh-Hant" lang="zh-Hant">繁體中文</option>
+          <option value="id" lang="id">Bahasa Indonesia</option>
+          <option value="tr" lang="tr">Türkçe</option>
+          <option value="vi" lang="vi">Tiếng Việt</option>
+          <option value="th" lang="th">ไทย</option>
+        </select>
+      </div>
       <div class="card-panel">
         <h1 class="title">充電ｶﾞｯ</h1>
         <p class="subtitle">
-          マスターの宣言を見て、より低いバッテリー残量を出そう。<br>
-          少ないほどすごい。残量が同じなら勝敗なし。<br>
-          手札が少なくなると充電してカードが追加されます。<br>
-          10回勝負。同点なら延長戦です。
+          <span data-text="rule1">マスターの宣言を見て、より低いバッテリー残量を出そう。</span><br>
+          <span data-text="rule2">少ないほどすごい。残量が同じなら勝敗なし。</span><br>
+          <span data-text="rule3">手札が少なくなると充電してカードが追加されます。</span><br>
+          <span data-text="rule4">10回勝負。同点なら延長戦です。</span>
         </p>
 
         <div id="bestBox" class="best-box">ベストスコア：まだありません</div>
 
-        <p class="note">
-          ランキング登録には名前を使います。名前はこのブラウザ内に保存されます。<br>
-          通信に失敗しても、ゲーム結果はそのまま表示されます。
-        </p>
+        <div class="name-settings">
+          <label for="nameInput" data-text="name">名前（任意）</label>
+          <input id="nameInput" class="name-input" type="text" maxlength="20" autocomplete="nickname"
+                 aria-describedby="nameHelp" placeholder="20文字まで" data-placeholder="nameLength">
+          <p id="nameHelp" class="name-help" data-text="nameHelp">名前を入れて始めるとランキングに登録されます。空欄でも遊べます。</p>
+          <button id="clearSavedNameButton" class="btn" type="button" data-text="forgetName">保存した名前を消す</button>
+          <p id="clearSavedNameStatus" class="name-help" role="status" aria-atomic="true"></p>
+        </div>
+        <p class="note" data-text="offline">通信に失敗しても、ゲーム結果はそのまま表示されます。</p>
 
         <div class="button-row">
-          <button id="startBtn" class="btn primary" type="button">ゲームスタート</button>
-          <button id="shareGameBtn" class="btn" type="button">ゲームをシェア</button>
-          <a class="btn" href="https://chameleonjp.codeberg.page/chameleonjp_lab/">他のゲームで遊ぶ</a>
+          <button id="startBtn" class="btn primary" type="button" data-text="start">ゲームスタート</button>
+          <button id="shareGameBtn" class="btn" type="button" data-text="shareX">Xでシェア</button>
+          <a id="homeRankingLink" class="btn" href="https://chameleonjp-lab.github.io/chameleonjp_lab/ranking.html?game=juden_ga" target="_blank" rel="noopener noreferrer" data-text="labRanking">ランキング</a>
+          <a class="btn" href="https://chameleonjp.codeberg.page/chameleonjp_lab/" data-text="other">他のゲームで遊ぶ</a>
         </div>
       </div>
     </section>
 
-    <section id="countdownScreen" class="screen center-screen" aria-label="カウントダウン画面">
+    <section id="countdownScreen" class="screen center-screen" aria-label="カウントダウン画面" data-aria="countdown">
       <div class="card-panel">
         <p id="countdownNumber" class="countdown-number">3</p>
-        <p class="countdown-text">準備してください</p>
+        <p class="countdown-text" data-text="ready">準備してください</p>
       </div>
     </section>
 
-    <section id="gameScreen" class="screen game-screen" aria-label="ゲーム画面">
+    <section id="gameScreen" class="screen game-screen" aria-label="ゲーム画面" data-aria="game">
       <div class="topbar">
         <div class="status-pill">
-          <span id="roundInfo" class="pill">1回戦</span>
-          <span id="scoreInfo" class="pill">0勝0敗</span>
-          <span id="sameInfo" class="pill">同残量0回</span>
+          <span id="roundInfo" class="pill" data-text="round" data-text-args='[1]'>1回戦</span>
+          <span id="scoreInfo" class="pill" data-text="wins" data-text-args='[0,0]'>0勝0敗</span>
+          <span id="sameInfo" class="pill" data-text="ties" data-text-args='[0]'>同残量0回</span>
         </div>
-        <button id="retireBtn" class="retire-btn" type="button">リタイア</button>
+        <button id="retireBtn" class="retire-btn" type="button" data-text="retire">リタイア</button>
       </div>
 
       <div class="master-panel">
         <pre id="masterAA" class="aa"></pre>
-        <div id="declaration" class="declaration">マスターの宣言：---</div>
-        <div id="masterCount" class="master-count">マスター残り：10枚</div>
+        <div id="declaration" class="declaration" data-text="call">マスターの宣言：---</div>
+        <div id="masterCount" class="master-count" data-text="remaining" data-text-args='[10]'>マスター残り：10枚</div>
       </div>
 
-      <div class="table-panel" aria-label="場">
+      <div class="table-panel" aria-label="場" data-aria="table">
         <div class="slot-wrap">
-          <div class="slot-label">マスター</div>
+          <div class="slot-label" data-text="master">マスター</div>
           <div id="masterSlot" class="slot"></div>
         </div>
         <div class="slot-wrap">
-          <div class="slot-label">あなた</div>
+          <div class="slot-label" data-text="you">あなた</div>
           <div id="playerSlot" class="slot"></div>
         </div>
       </div>
 
-      <div id="messageBox" class="message-panel">カードを選んでください</div>
+      <div id="messageBox" class="message-panel" data-text="pick">カードを選んでください</div>
 
       <div class="hand-panel">
-        <p class="hand-title">あなたの手札</p>
+        <p class="hand-title" data-text="hand">あなたの手札</p>
         <div id="playerHand" class="hand-grid"></div>
       </div>
     </section>
 
-    <section id="resultScreen" class="screen center-screen" aria-label="結果画面">
+    <section id="resultScreen" class="screen center-screen" aria-label="結果画面" data-aria="result">
       <div class="card-panel">
         <pre id="resultAA" class="aa result-aa" aria-hidden="true"></pre>
-        <h2 id="resultTitle" class="result-title">結果</h2>
+        <h2 id="resultTitle" class="result-title" data-text="result">結果</h2>
         <div id="resultStats" class="result-stats"></div>
 
         <div id="onlineBox" class="online-box">
-          <div class="online-title">オンライン記録</div>
-          <div id="supabaseStatus" class="online-status">結果送信待ち</div>
+          <div class="online-title" data-text="online">オンライン記録</div>
+          <div id="supabaseStatus" class="online-status" data-text="waiting">結果送信待ち</div>
           <div id="onlineStats" class="online-stats"></div>
         </div>
 
         <div id="rankingBox" class="ranking-box">
-          <div class="ranking-title">ランキング TOP 3</div>
-          <div class="ranking-tabs" role="tablist" aria-label="ランキング切り替え">
-            <button id="bestRankingTab" class="ranking-tab active" type="button" aria-selected="true">最高スコア</button>
-            <button id="firstRankingTab" class="ranking-tab" type="button" aria-selected="false">初挑戦</button>
+          <div class="ranking-title" data-text="rankTop">ランキング TOP 30</div>
+          <div class="ranking-tabs" role="tablist" aria-label="ランキング切り替え" data-aria="rankTabs">
+            <button id="bestRankingTab" class="ranking-tab active" type="button" aria-selected="true" data-text="best">最高スコア</button>
+            <button id="firstRankingTab" class="ranking-tab" type="button" aria-selected="false" data-text="first">初挑戦</button>
           </div>
 
           <div id="bestRankingPanel" class="ranking-panel active">
-            <div class="ranking-subtitle">最高スコアランキング</div>
-            <div id="bestRankingStatus" class="ranking-status">最高スコアランキング取得待ち</div>
-            <ol id="bestRankingList" class="ranking-list"></ol>
+            <div class="ranking-subtitle" data-text="bestRank">最高スコアランキング</div>
+            <div id="bestRankingStatus" class="ranking-status" role="status" aria-live="polite" data-text="rankWait" data-text-args='["@bestRank"]'>最高スコアランキング取得待ち</div>
+            <ol id="bestRankingList" class="ranking-list" role="list"></ol>
+            <button id="bestRankingRetry" class="btn ranking-retry" type="button" data-text="rankRetry" hidden>ランキングを再取得</button>
           </div>
 
           <div id="firstRankingPanel" class="ranking-panel">
-            <div class="ranking-subtitle">初挑戦ランキング</div>
-            <div id="firstRankingStatus" class="ranking-status">初挑戦ランキング取得待ち</div>
-            <ol id="firstRankingList" class="ranking-list"></ol>
+            <div class="ranking-subtitle" data-text="firstRank">初挑戦ランキング</div>
+            <div id="firstRankingStatus" class="ranking-status" role="status" aria-live="polite" data-text="rankWait" data-text-args='["@firstRank"]'>初挑戦ランキング取得待ち</div>
+            <ol id="firstRankingList" class="ranking-list" role="list"></ol>
+            <button id="firstRankingRetry" class="btn ranking-retry" type="button" data-text="rankRetry" hidden>ランキングを再取得</button>
           </div>
         </div>
 
         <div id="resultButtons" class="button-row">
-          <button id="shareResultBtn" class="btn" type="button">ゲーム結果をシェア</button>
-          <button id="restartBtn" class="btn primary" type="button">再ゲーム</button>
-          <button id="endBtn" class="btn" type="button">ゲーム終了（ホームへ戻る）</button>
+          <button id="shareResultBtn" class="btn" type="button" data-text="shareX">Xでシェア</button>
+          <a id="resultRankingLink" class="btn" href="https://chameleonjp-lab.github.io/chameleonjp_lab/ranking.html?game=juden_ga" target="_blank" rel="noopener noreferrer" data-text="labRanking">ランキング</a>
+          <button id="restartBtn" class="btn primary" type="button" data-text="retry">再ゲーム</button>
+          <button id="endBtn" class="btn" type="button" data-text="return">ゲーム終了（ホームへ戻る）</button>
         </div>
       </div>
     </section>
   </main>
 
-  <div id="nameModal" class="name-modal" aria-hidden="true">
-    <div class="name-card" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
-      <h2 id="nameTitle" class="name-title">名前を入力</h2>
-      <p class="name-text">ランキングに使う名前です。前後の空白は削り、20文字まで保存します。</p>
-      <input id="nameInput" class="name-input" type="text" maxlength="20" autocomplete="nickname" placeholder="20文字まで">
-      <div id="nameError" class="name-error"></div>
-      <div class="button-row">
-        <button id="nameSubmitBtn" class="btn primary" type="button">この名前で始める</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast" role="status" aria-live="polite">クリップボードにコピーしました</div>
+  <div id="toast" class="toast" role="status" aria-live="polite" data-text="copied">クリップボードにコピーしました</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -865,7 +905,6 @@
       const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_drzcy0v97knU6FgjqSgBHw_0A9XPdFM";
       const GAME_SLUG = "juden_ga";
       const CLIENT_VERSION = "juden-ga-ranking-v1";
-      const SCORE_UNIT = "点";
       const SCORE_SCALE = 1;
       const SCORE_DECIMALS = 0;
       const BEST_KEY = "juuden_gah_best_v11";
@@ -935,10 +974,7 @@
       const shareResultBtn = $("shareResultBtn");
       const restartBtn = $("restartBtn");
       const endBtn = $("endBtn");
-      const nameModal = $("nameModal");
       const nameInput = $("nameInput");
-      const nameError = $("nameError");
-      const nameSubmitBtn = $("nameSubmitBtn");
       const toast = $("toast");
 
       let cardId = 0;
@@ -948,22 +984,87 @@
       let supabaseClient = null;
       let playerName = "";
       let scoreSubmitted = false;
-      let onlineResultInfo = null;
+      const RANKING_LIMIT = 30;
+      let onlinePresentation = null;
+      let rankingView = null;
 
       document.addEventListener("dblclick", (event) => {
         event.preventDefault();
       }, { passive: false });
 
+      const localeText = {"ja":{"home":"ホーム画面","countdown":"カウントダウン画面","game":"ゲーム画面","result":"結果","table":"場","rankTabs":"ランキング切り替え","rule1":"マスターの宣言を見て、より低いバッテリー残量を出そう。","rule2":"少ないほどすごい。残量が同じなら勝敗なし。","rule3":"手札が少なくなると充電してカードが追加されます。","rule4":"10回勝負。同点なら延長戦です。","noBest":"ベストスコア：まだありません","name":"名前（任意）","nameLength":"20文字まで","nameHelp":"名前を入れて始めるとランキングに登録されます。空欄でも遊べます。","offline":"通信に失敗しても、ゲーム結果はそのまま表示されます。","start":"ゲームスタート","shareGame":"ゲームをシェア","other":"他のゲームで遊ぶ","ready":"準備してください","round":"{0}回戦","wins":"{0}勝{1}敗","ties":"同残量{0}回","retire":"リタイア","call":"マスターの宣言","remaining":"マスター残り：{0}枚","master":"マスター","you":"あなた","pick":"カードを選んでください","hand":"あなたの手札","online":"オンライン記録","waiting":"結果送信待ち","rankTop":"ランキング TOP 3","best":"最高スコア","first":"初挑戦","bestRank":"最高スコアランキング","firstRank":"初挑戦ランキング","rankWait":"{0}取得待ち","shareResult":"ゲーム結果をシェア","retry":"再ゲーム","return":"ゲーム終了（ホームへ戻る）","copied":"クリップボードにコピーしました","unit":"点","below":"{0}以下を出す","above":"{0}以上を出す","even":"偶数を出す","odd":"奇数を出す","between":"{0}〜{1}を出す","card":"{0}%のカード","charge":"充電ｶﾞｯ！\nカードを追加！","confirm":"もう一度タップで出す","cardError":"カード処理で問題が起きました。再ゲームしてください。","winTurn":"WIN！\n充電成功！","loseTurn":"LOSE...\n充電失敗","tieTurn":"BUMP！\n同じ残量。カードだけ消えた。","overtimeHint":"延長戦！\n次に勝った方が勝ち！","finalWin":"FINAL WIN！\n充電完了！","finalLose":"FINAL LOSE...\n充電切れ…","overtime":"延長戦","win":"勝ち","lose":"負け","progress":"途中成績","final":"最終成績","same":"同残量","charges":"充電回数","runs":"プレイ回数","score":"今回スコア","bestLocal":"ベストスコア","last":"前回","firstSaved":"初挑戦スコアを登録しました","bestSaved":"自己ベスト更新！","sent":"ランキング送信に成功しました","firstScore":"初回スコア","pending":"取得中","anon":"名無し","empty":"{0}はまだありません","sending":"ランキング送信中…","noSend":"名前なしで遊んだため、スコアは送信されません。","loading":"{0}取得中…","sendFail":"ランキング連携に失敗しました😅","unavailable":"取得できませんでした","loadFail":"ランキングの取得に失敗しました","count":"{0}回","line":"{0}：{1}","shareTitle":"{0} 結果","language":"言語","forgetName":"保存した名前を消す","forgotName":"このブラウザーに保存した名前を消しました。","forgetNameFailed":"名前を消せませんでした。入力欄を空欄にすれば、今回は名前なしで遊べます。"},"en":{"home":"Home","countdown":"Countdown","game":"Game","result":"Result","table":"Table","rankTabs":"Ranking tabs","rule1":"Read the Master's call and play a card with a lower battery level.","rule2":"Lower wins. Equal levels are a tie.","rule3":"When your hand runs low, recharge to gain cards.","rule4":"Play 10 rounds. A draw goes to overtime.","noBest":"Best score: none yet","name":"Name (optional)","nameLength":"Up to 20 characters","nameHelp":"Start with a name to enter the rankings. You can also play without one.","offline":"Your result still appears if the connection fails.","start":"Start game","shareGame":"Share game","other":"More games","ready":"Get ready","round":"Round {0}","wins":"{0} wins, {1} losses","ties":"{0} ties","retire":"Quit","call":"Master's call","remaining":"Master has {0} cards left","master":"Master","you":"You","pick":"Choose a card","hand":"Your hand","online":"Online record","waiting":"Waiting to submit","rankTop":"Top 3 rankings","best":"Best score","first":"First attempt","bestRank":"Best-score ranking","firstRank":"First-attempt ranking","rankWait":"Waiting for {0}","shareResult":"Share result","retry":"Play again","return":"End game (back to home)","copied":"Copied to clipboard","unit":" pts","below":"Play {0} or lower","above":"Play {0} or higher","even":"Play an even number","odd":"Play an odd number","between":"Play from {0} to {1}","card":"{0}% card","charge":"Recharge!\nMore cards added!","confirm":"Tap again to play","cardError":"There was a card error. Please restart the game.","winTurn":"WIN!\nRecharge successful!","loseTurn":"LOSE…\nRecharge failed","tieTurn":"TIE!\nEqual battery levels. Both cards are discarded.","overtimeHint":"Overtime!\nThe next winner takes the game!","finalWin":"FINAL WIN!\nFully charged!","finalLose":"FINAL LOSS…\nOut of charge…","overtime":"Overtime","win":"Win","lose":"Loss","progress":"Score at exit","final":"Final record","same":"Ties","charges":"Recharges","runs":"Games played","score":"This score","bestLocal":"Personal best","last":"Last game","firstSaved":"First-attempt score recorded","bestSaved":"New personal best!","sent":"Score sent to the rankings","firstScore":"First score","pending":"Loading","anon":"Anonymous","empty":"No entries yet for {0}","sending":"Sending score to the rankings…","noSend":"You played without a name, so your score won't be sent.","loading":"Loading {0}…","sendFail":"Could not send the score to the rankings","unavailable":"Unavailable","loadFail":"Could not load the ranking","count":"{0}","line":"{0}: {1}","shareTitle":"{0} result","language":"Language","forgetName":"Clear saved name","forgotName":"The name saved in this browser was cleared.","forgetNameFailed":"Could not clear the saved name. Leave the field blank to play without a name this time."},"es":{"home":"Inicio","countdown":"Cuenta atrás","game":"Partida","result":"Resultado","table":"Mesa","rankTabs":"Pestañas de clasificación","rule1":"Lee el anuncio del Maestro y juega una carta con menos batería.","rule2":"Gana el nivel más bajo. Si los niveles coinciden, hay empate.","rule3":"Si te quedan pocas cartas, recarga para obtener más.","rule4":"Juega 10 rondas. Si hay empate, se juega una prórroga.","noBest":"Mejor puntuación: aún no hay","name":"Nombre (opcional)","nameLength":"Hasta 20 caracteres","nameHelp":"Empieza con un nombre para entrar en la clasificación. También puedes jugar sin nombre.","offline":"Aunque falle la conexión, verás tu resultado.","start":"Empezar partida","shareGame":"Compartir juego","other":"Más juegos","ready":"Prepárate","round":"Ronda {0}","wins":"{0} victorias, {1} derrotas","ties":"{0} empates","retire":"Abandonar","call":"Anuncio del Maestro","remaining":"Al Maestro le quedan {0} cartas","master":"Maestro","you":"Tú","pick":"Elige una carta","hand":"Tus cartas","online":"Registro en línea","waiting":"En espera de envío","rankTop":"Tres primeros de la clasificación","best":"Mejor puntuación","first":"Primer intento","bestRank":"Clasificación de mejores puntuaciones","firstRank":"Clasificación del primer intento","rankWait":"Esperando: {0}","shareResult":"Compartir resultado","retry":"Volver a jugar","return":"Terminar (volver al inicio)","copied":"Copiado al portapapeles","unit":" pts","below":"Juega {0} o menos","above":"Juega {0} o más","even":"Juega un número par","odd":"Juega un número impar","between":"Juega entre {0} y {1}","card":"Carta del {0} %","charge":"¡Recarga!\n¡Se añadieron más cartas!","confirm":"Toca otra vez para jugarla","cardError":"Hubo un problema con las cartas. Reinicia la partida.","winTurn":"¡VICTORIA!\n¡Recarga correcta!","loseTurn":"DERROTA…\nNo se pudo recargar","tieTurn":"¡EMPATE!\nMisma batería. Se descartan ambas cartas.","overtimeHint":"¡Prórroga!\n¡Quien gane la siguiente ronda gana la partida!","finalWin":"¡VICTORIA FINAL!\n¡Carga completa!","finalLose":"DERROTA FINAL…\nSin batería…","overtime":"Prórroga","win":"Victoria","lose":"Derrota","progress":"Marcador al salir","final":"Marcador final","same":"Empates","charges":"Recargas","runs":"Partidas jugadas","score":"Puntuación de esta partida","bestLocal":"Récord personal","last":"Última partida","firstSaved":"Puntuación del primer intento registrada","bestSaved":"¡Nuevo récord personal!","sent":"Puntuación enviada a la clasificación","firstScore":"Primera puntuación","pending":"Cargando","anon":"Anónimo","empty":"Aún no hay datos: {0}","sending":"Enviando puntuación a la clasificación…","noSend":"Jugaste sin nombre, por lo que no se enviará tu puntuación.","loading":"Cargando: {0}…","sendFail":"No se pudo enviar la puntuación a la clasificación","unavailable":"No disponible","loadFail":"No se pudo cargar la clasificación","count":"{0}","line":"{0}: {1}","shareTitle":"Resultado de {0}","language":"Idioma","forgetName":"Borrar el nombre guardado","forgotName":"Se borró el nombre guardado en este navegador.","forgetNameFailed":"No se pudo borrar el nombre guardado. Deja el campo vacío para jugar sin nombre esta vez."},"pt-BR":{"home":"Início","countdown":"Contagem regressiva","game":"Partida","result":"Resultado","table":"Mesa","rankTabs":"Abas da classificação","rule1":"Veja o anúncio do Mestre e jogue uma carta com menos bateria.","rule2":"O menor nível ganha. Níveis iguais dão empate.","rule3":"Quando sobrarem poucas cartas, recarregue para ganhar mais.","rule4":"Jogue 10 rodadas. Em caso de empate, há prorrogação.","noBest":"Melhor pontuação: nenhuma ainda","name":"Nome (opcional)","nameLength":"Até 20 caracteres","nameHelp":"Comece com um nome para entrar na classificação. Dá para jogar sem nome.","offline":"O resultado aparece mesmo se a conexão falhar.","start":"Iniciar partida","shareGame":"Compartilhar jogo","other":"Mais jogos","ready":"Prepare-se","round":"Rodada {0}","wins":"{0} vitórias, {1} derrotas","ties":"{0} empates","retire":"Desistir","call":"Anúncio do Mestre","remaining":"Restam {0} cartas para o Mestre","master":"Mestre","you":"Você","pick":"Escolha uma carta","hand":"Sua mão","online":"Registro on-line","waiting":"Aguardando envio","rankTop":"Três melhores da classificação","best":"Melhor pontuação","first":"Primeira tentativa","bestRank":"Classificação das melhores pontuações","firstRank":"Classificação da primeira tentativa","rankWait":"Aguardando: {0}","shareResult":"Compartilhar resultado","retry":"Jogar de novo","return":"Encerrar (voltar ao início)","copied":"Copiado para a área de transferência","unit":" pts","below":"Jogue {0} ou menos","above":"Jogue {0} ou mais","even":"Jogue um número par","odd":"Jogue um número ímpar","between":"Jogue entre {0} e {1}","card":"Carta de {0}%","charge":"Recarregou!\nMais cartas adicionadas!","confirm":"Toque novamente para jogar","cardError":"Houve um erro com as cartas. Reinicie a partida.","winTurn":"VITÓRIA!\nRecarga concluída!","loseTurn":"DERROTA…\nFalha na recarga","tieTurn":"EMPATE!\nMesma bateria. As duas cartas são descartadas.","overtimeHint":"Prorrogação!\nQuem vencer a próxima rodada ganha!","finalWin":"VITÓRIA FINAL!\nCarga completa!","finalLose":"DERROTA FINAL…\nSem bateria…","overtime":"Prorrogação","win":"Vitória","lose":"Derrota","progress":"Placar ao sair","final":"Placar final","same":"Empates","charges":"Recargas","runs":"Partidas jogadas","score":"Pontuação da partida","bestLocal":"Recorde pessoal","last":"Última partida","firstSaved":"Pontuação da primeira tentativa registrada","bestSaved":"Novo recorde pessoal!","sent":"Pontuação enviada à classificação","firstScore":"Primeira pontuação","pending":"Carregando","anon":"Anônimo","empty":"Sem registros: {0}","sending":"Enviando pontuação à classificação…","noSend":"Você jogou sem nome, então sua pontuação não será enviada.","loading":"Carregando: {0}…","sendFail":"Não foi possível enviar a pontuação à classificação","unavailable":"Indisponível","loadFail":"Não foi possível carregar a classificação","count":"{0}","line":"{0}: {1}","shareTitle":"Resultado de {0}","language":"Idioma","forgetName":"Limpar o nome salvo","forgotName":"O nome salvo neste navegador foi apagado.","forgetNameFailed":"Não foi possível apagar o nome salvo. Deixe o campo em branco para jogar sem nome desta vez."},"zh-Hans":{"home":"首页","countdown":"倒计时","game":"游戏","result":"结果","table":"桌面","rankTabs":"排行榜选项卡","rule1":"看庄家的宣告，打出剩余电量更低的牌。","rule2":"电量越低越好。电量相同则打平。","rule3":"手牌快用完时可以充电，补充手牌。","rule4":"共10轮。比分相同则进入加赛。","noBest":"个人最高分：暂无","name":"名字（选填）","nameLength":"最多20个字符","nameHelp":"输入名字后开始，成绩才会列入排行榜。也可以不填名字。","offline":"即使网络连接失败，结果仍会显示。","start":"开始游戏","shareGame":"分享游戏","other":"更多游戏","ready":"准备开始","round":"第{0}轮","wins":"{0}胜{1}负","ties":"{0}次平局","retire":"退出","call":"庄家宣告","remaining":"庄家剩余{0}张牌","master":"庄家","you":"你","pick":"请选择一张牌","hand":"你的手牌","online":"在线记录","waiting":"等待提交","rankTop":"排行榜前三","best":"最高分","first":"首次挑战","bestRank":"最高分榜","firstRank":"首次挑战榜","rankWait":"等待加载{0}","shareResult":"分享结果","retry":"再玩一次","return":"结束游戏（返回首页）","copied":"已复制到剪贴板","unit":"分","below":"打出{0}或以下的牌","above":"打出{0}或以上的牌","even":"打出偶数牌","odd":"打出奇数牌","between":"打出{0}到{1}之间的牌","card":"电量{0}%的牌","charge":"充电！\n已补充手牌！","confirm":"再点一次出牌","cardError":"处理手牌时出错，请重新开始。","winTurn":"赢了！\n充电成功！","loseTurn":"输了……\n充电失败","tieTurn":"平局！\n电量相同，两张牌都弃置。","overtimeHint":"加赛！\n下一轮获胜的人赢得整场游戏！","finalWin":"最终获胜！\n已充满！","finalLose":"最终落败……\n电量耗尽……","overtime":"加赛","win":"胜利","lose":"失败","progress":"退出时的战绩","final":"最终战绩","same":"平局","charges":"充电次数","runs":"游戏次数","score":"本局得分","bestLocal":"个人最高分","last":"上次游戏","firstSaved":"已记录首次挑战分数","bestSaved":"刷新个人最高分！","sent":"分数已提交至排行榜","firstScore":"首次得分","pending":"加载中","anon":"匿名","empty":"{0}暂无记录","sending":"正在向排行榜提交分数……","noSend":"你没有输入名字，本局得分不会提交。","loading":"正在加载{0}……","sendFail":"无法向排行榜提交分数","unavailable":"无法获取","loadFail":"无法加载排行榜","count":"{0}次","line":"{0}：{1}","shareTitle":"{0}的游戏结果","language":"语言","forgetName":"清除已保存的名字","forgotName":"已清除此浏览器中保存的名字。","forgetNameFailed":"无法清除已保存的名字。留空即可在本次不使用名字游玩。"},"zh-Hant":{"home":"首頁","countdown":"倒數","game":"遊戲","result":"結果","table":"桌面","rankTabs":"排行榜頁籤","rule1":"看莊家的宣告，打出剩餘電量更低的牌。","rule2":"電量越低越好。電量相同則平手。","rule3":"手牌快用完時可以充電，補充手牌。","rule4":"共10輪。比分相同則進入延長賽。","noBest":"個人最高分：暫無","name":"名稱（選填）","nameLength":"最多20個字元","nameHelp":"輸入名稱後開始，成績才會列入排行榜。也可以不填名稱。","offline":"即使網路連線失敗，結果仍會顯示。","start":"開始遊戲","shareGame":"分享遊戲","other":"更多遊戲","ready":"準備開始","round":"第{0}輪","wins":"{0}勝{1}負","ties":"{0}次平手","retire":"退出","call":"莊家宣告","remaining":"莊家剩下{0}張牌","master":"莊家","you":"你","pick":"請選擇一張牌","hand":"你的手牌","online":"線上紀錄","waiting":"等待送出","rankTop":"排行榜前三","best":"最高分","first":"首次挑戰","bestRank":"最高分榜","firstRank":"首次挑戰榜","rankWait":"等待載入{0}","shareResult":"分享結果","retry":"再玩一次","return":"結束遊戲（返回首頁）","copied":"已複製到剪貼簿","unit":"分","below":"打出{0}或以下的牌","above":"打出{0}或以上的牌","even":"打出偶數牌","odd":"打出奇數牌","between":"打出{0}到{1}之間的牌","card":"電量{0}%的牌","charge":"充電！\n已補充手牌！","confirm":"再點一次出牌","cardError":"處理手牌時發生錯誤，請重新開始。","winTurn":"贏了！\n充電成功！","loseTurn":"輸了……\n充電失敗","tieTurn":"平手！\n電量相同，兩張牌都棄置。","overtimeHint":"延長賽！\n下一輪獲勝的人贏得整場遊戲！","finalWin":"最終獲勝！\n已充滿！","finalLose":"最終落敗……\n電量耗盡……","overtime":"延長賽","win":"勝利","lose":"落敗","progress":"退出時的戰績","final":"最終戰績","same":"平手","charges":"充電次數","runs":"遊戲次數","score":"本局得分","bestLocal":"個人最高分","last":"上次遊戲","firstSaved":"已記錄首次挑戰分數","bestSaved":"刷新個人最高分！","sent":"分數已送至排行榜","firstScore":"首次得分","pending":"載入中","anon":"匿名","empty":"{0}暫無紀錄","sending":"正在向排行榜送出分數……","noSend":"你沒有輸入名稱，本局得分不會送出。","loading":"正在載入{0}……","sendFail":"無法向排行榜送出分數","unavailable":"無法取得","loadFail":"無法載入排行榜","count":"{0}次","line":"{0}：{1}","shareTitle":"{0}的遊戲結果","language":"語言","forgetName":"清除已儲存的名稱","forgotName":"已清除此瀏覽器中儲存的名稱。","forgetNameFailed":"無法清除已儲存的名稱。將欄位留空，即可在本次不使用名稱遊玩。"},"fr":{"home":"Accueil","countdown":"Compte à rebours","game":"Partie","result":"Résultat","table":"Table","rankTabs":"Onglets du classement","rule1":"Lis l’annonce du maître et joue une carte dont la batterie est plus faible.","rule2":"La valeur la plus basse gagne. À charge égale, c’est un match nul.","rule3":"Quand il te reste peu de cartes, recharge pour en obtenir d’autres.","rule4":"10 manches. En cas d’égalité, place à la prolongation.","noBest":"Meilleur score : aucun pour l’instant","name":"Nom (facultatif)","nameLength":"20 caractères maximum","nameHelp":"Entre un nom pour figurer au classement. Tu peux aussi jouer sans nom.","offline":"Le résultat s’affiche même si la connexion échoue.","start":"Commencer","shareGame":"Partager le jeu","other":"Autres jeux","ready":"Prépare-toi","round":"Manche {0}","wins":"{0} victoires, {1} défaites","ties":"{0} égalités","retire":"Abandonner","call":"Annonce du maître","remaining":"Il reste {0} cartes au maître","master":"Maître","you":"Toi","pick":"Choisis une carte","hand":"Ta main","online":"Résultat en ligne","waiting":"En attente d’envoi","rankTop":"Les 3 premiers","best":"Meilleur score","first":"Première tentative","bestRank":"Classement des meilleurs scores","firstRank":"Classement de la première tentative","rankWait":"En attente : {0}","shareResult":"Partager le résultat","retry":"Rejouer","return":"Terminer (retour à l’accueil)","copied":"Copié dans le presse-papiers","unit":" pts","below":"Joue {0} ou moins","above":"Joue {0} ou plus","even":"Joue un nombre pair","odd":"Joue un nombre impair","between":"Joue entre {0} et {1}","card":"Carte à {0} %","charge":"Recharge !\nDes cartes ont été ajoutées !","confirm":"Touche à nouveau pour la jouer","cardError":"Une erreur de cartes est survenue. Relance la partie.","winTurn":"VICTOIRE !\nRecharge réussie !","loseTurn":"DÉFAITE…\nRecharge échouée","tieTurn":"ÉGALITÉ !\nMême charge. Les deux cartes sont défaussées.","overtimeHint":"Prolongation !\nLa prochaine manche décide du vainqueur !","finalWin":"VICTOIRE FINALE !\nRecharge complète !","finalLose":"DÉFAITE FINALE…\nBatterie à plat…","overtime":"Prolongation","win":"Victoire","lose":"Défaite","progress":"Score à l’abandon","final":"Bilan final","same":"Égalités","charges":"Recharges","runs":"Parties jouées","score":"Score de la partie","bestLocal":"Record personnel","last":"Partie précédente","firstSaved":"Score de la première tentative enregistré","bestSaved":"Nouveau record personnel !","sent":"Score envoyé au classement","firstScore":"Premier score","pending":"Chargement","anon":"Anonyme","empty":"Aucune entrée : {0}","sending":"Envoi du score au classement…","noSend":"Tu as joué sans nom : ton score ne sera pas envoyé.","loading":"Chargement : {0}…","sendFail":"Impossible d’envoyer le score au classement","unavailable":"Indisponible","loadFail":"Impossible de charger le classement","count":"{0}","line":"{0} : {1}","shareTitle":"Résultat de {0}","language":"Langue","forgetName":"Effacer le nom enregistré","forgotName":"Le nom enregistré dans ce navigateur a été effacé.","forgetNameFailed":"Impossible d’effacer le nom enregistré. Laissez le champ vide pour jouer sans nom cette fois."},"de":{"home":"Startseite","countdown":"Countdown","game":"Spiel","result":"Ergebnis","table":"Spielfeld","rankTabs":"Ranglistenreiter","rule1":"Lies die Ansage des Meisters und spiele eine Karte mit niedrigerem Akkustand.","rule2":"Der niedrigere Wert gewinnt. Gleiche Werte ergeben ein Unentschieden.","rule3":"Wenn dir die Karten ausgehen, lade auf und erhalte neue.","rule4":"10 Runden. Bei Gleichstand gibt es eine Verlängerung.","noBest":"Bestwert: noch keiner","name":"Name (optional)","nameLength":"Bis zu 20 Zeichen","nameHelp":"Mit einem Namen kommst du in die Rangliste. Du kannst auch ohne Namen spielen.","offline":"Dein Ergebnis wird auch bei einem Verbindungsfehler angezeigt.","start":"Spiel starten","shareGame":"Spiel teilen","other":"Weitere Spiele","ready":"Mach dich bereit","round":"Runde {0}","wins":"{0} Siege, {1} Niederlagen","ties":"{0} Unentschieden","retire":"Aufgeben","call":"Ansage des Meisters","remaining":"Der Meister hat noch {0} Karten","master":"Meister","you":"Du","pick":"Wähle eine Karte","hand":"Deine Handkarten","online":"Online-Ergebnis","waiting":"Wartet auf Übertragung","rankTop":"Top 3 der Rangliste","best":"Bestwert","first":"Erster Versuch","bestRank":"Rangliste der Bestwerte","firstRank":"Rangliste der ersten Versuche","rankWait":"Warten auf: {0}","shareResult":"Ergebnis teilen","retry":"Noch einmal spielen","return":"Beenden (zur Startseite)","copied":"In die Zwischenablage kopiert","unit":" Pkt.","below":"Spiele {0} oder weniger","above":"Spiele {0} oder mehr","even":"Spiele eine gerade Zahl","odd":"Spiele eine ungerade Zahl","between":"Spiele zwischen {0} und {1}","card":"Karte mit {0} %","charge":"Aufladen!\nNeue Karten erhalten!","confirm":"Tippe erneut, um sie auszuspielen","cardError":"Kartenfehler. Bitte starte das Spiel neu.","winTurn":"SIEG!\nAufladen gelungen!","loseTurn":"NIEDERLAGE…\nAufladen fehlgeschlagen","tieTurn":"UNENTSCHIEDEN!\nGleiche Ladung. Beide Karten werden abgelegt.","overtimeHint":"Verlängerung!\nWer die nächste Runde gewinnt, gewinnt das Spiel!","finalWin":"GESAMTSIEG!\nVoll aufgeladen!","finalLose":"GESAMTNIEDERLAGE…\nAkku leer…","overtime":"Verlängerung","win":"Sieg","lose":"Niederlage","progress":"Stand beim Aufgeben","final":"Endstand","same":"Unentschieden","charges":"Aufladungen","runs":"Gespielte Partien","score":"Punkte dieser Partie","bestLocal":"Persönlicher Bestwert","last":"Letzte Partie","firstSaved":"Ergebnis des ersten Versuchs gespeichert","bestSaved":"Neuer persönlicher Bestwert!","sent":"Punkte an die Rangliste gesendet","firstScore":"Erstes Ergebnis","pending":"Lädt","anon":"Anonym","empty":"Noch keine Einträge: {0}","sending":"Punkte werden an die Rangliste gesendet…","noSend":"Du hast ohne Namen gespielt. Deine Punkte werden nicht übertragen.","loading":"{0} wird geladen…","sendFail":"Punkte konnten nicht an die Rangliste gesendet werden","unavailable":"Nicht verfügbar","loadFail":"Rangliste konnte nicht geladen werden","count":"{0}","line":"{0}: {1}","shareTitle":"Ergebnis von {0}","language":"Sprache","forgetName":"Gespeicherten Namen löschen","forgotName":"Der in diesem Browser gespeicherte Name wurde gelöscht.","forgetNameFailed":"Der gespeicherte Name konnte nicht gelöscht werden. Lass das Feld leer, um diesmal ohne Namen zu spielen."},"ko":{"home":"홈 화면","countdown":"카운트다운","game":"게임 화면","result":"결과","table":"테이블","rankTabs":"순위표 탭","rule1":"마스터의 선언을 보고 배터리 잔량이 더 낮은 카드를 내세요.","rule2":"잔량이 낮을수록 유리합니다. 같으면 무승부입니다.","rule3":"손패가 줄어들면 충전해서 카드를 더 받습니다.","rule4":"10라운드로 겨룹니다. 동점이면 연장전입니다.","noBest":"최고 점수: 아직 없음","name":"이름 (선택)","nameLength":"최대 20자","nameHelp":"이름을 입력하고 시작하면 순위표에 오릅니다. 입력하지 않아도 플레이할 수 있습니다.","offline":"연결에 실패해도 게임 결과는 표시됩니다.","start":"게임 시작","shareGame":"게임 공유","other":"다른 게임","ready":"준비하세요","round":"{0}라운드","wins":"{0}승 {1}패","ties":"무승부 {0}회","retire":"포기","call":"마스터의 선언","remaining":"마스터의 남은 카드: {0}장","master":"마스터","you":"나","pick":"카드를 선택하세요","hand":"내 손패","online":"온라인 기록","waiting":"제출 대기 중","rankTop":"순위표 상위 3명","best":"최고 점수","first":"첫 도전","bestRank":"최고 점수 순위표","firstRank":"첫 도전 순위표","rankWait":"{0} 불러오기 대기 중","shareResult":"결과 공유","retry":"다시 플레이","return":"종료 (홈으로)","copied":"클립보드에 복사했습니다","unit":"점","below":"{0} 이하를 내세요","above":"{0} 이상을 내세요","even":"짝수를 내세요","odd":"홀수를 내세요","between":"{0}~{1}을 내세요","card":"{0}% 카드","charge":"충전!\n카드가 추가됐습니다!","confirm":"한 번 더 눌러 카드를 내세요","cardError":"카드를 처리하는 중 오류가 발생했습니다. 다시 시작하세요.","winTurn":"승리!\n충전 성공!","loseTurn":"패배…\n충전 실패","tieTurn":"무승부!\n잔량이 같습니다. 두 카드 모두 버립니다.","overtimeHint":"연장전!\n다음 라운드의 승자가 이깁니다!","finalWin":"최종 승리!\n완전히 충전했습니다!","finalLose":"최종 패배…\n배터리가 방전됐습니다…","overtime":"연장전","win":"승리","lose":"패배","progress":"포기 당시 전적","final":"최종 전적","same":"무승부","charges":"충전 횟수","runs":"플레이 횟수","score":"이번 점수","bestLocal":"개인 최고 점수","last":"지난 게임","firstSaved":"첫 도전 점수를 등록했습니다","bestSaved":"개인 최고 점수 갱신!","sent":"순위표에 점수를 제출했습니다","firstScore":"첫 점수","pending":"불러오는 중","anon":"익명","empty":"{0} 기록이 아직 없습니다","sending":"순위표에 점수 제출 중…","noSend":"이름 없이 플레이해 점수를 제출하지 않습니다.","loading":"{0} 불러오는 중…","sendFail":"순위표에 점수를 제출하지 못했습니다","unavailable":"불러올 수 없음","loadFail":"순위표를 불러오지 못했습니다","count":"{0}회","line":"{0}: {1}","shareTitle":"{0} 결과","language":"언어","forgetName":"저장된 이름 지우기","forgotName":"이 브라우저에 저장된 이름을 지웠습니다.","forgetNameFailed":"저장된 이름을 지우지 못했습니다. 이번에는 입력란을 비워 두면 이름 없이 플레이할 수 있습니다."},"ru":{"home":"Главная","countdown":"Обратный отсчёт","game":"Игра","result":"Результат","table":"Стол","rankTabs":"Вкладки рейтинга","rule1":"Посмотри объявление Мастера и сыграй картой с меньшим зарядом.","rule2":"Меньший заряд выигрывает. При равном заряде — ничья.","rule3":"Когда карт мало, заряди батарею и получи новые.","rule4":"Игра длится 10 раундов. При ничьей будет дополнительный раунд.","noBest":"Лучший результат: пока нет","name":"Имя (необязательно)","nameLength":"До 20 символов","nameHelp":"Введи имя, чтобы попасть в рейтинг. Можно играть и без имени.","offline":"Результат появится даже при сбое соединения.","start":"Начать игру","shareGame":"Поделиться игрой","other":"Другие игры","ready":"Приготовься","round":"Раунд {0}","wins":"Победы: {0}, поражения: {1}","ties":"Ничьи: {0}","retire":"Сдаться","call":"Объявление Мастера","remaining":"У Мастера осталось карт: {0}","master":"Мастер","you":"Ты","pick":"Выбери карту","hand":"Твои карты","online":"Запись в сети","waiting":"Ожидание отправки","rankTop":"Тройка лидеров","best":"Лучший результат","first":"Первая попытка","bestRank":"Рейтинг лучших результатов","firstRank":"Рейтинг первых попыток","rankWait":"Ожидание: {0}","shareResult":"Поделиться результатом","retry":"Играть ещё","return":"Завершить (на главную)","copied":"Скопировано в буфер обмена","unit":" очк.","below":"Сыграй {0} или меньше","above":"Сыграй {0} или больше","even":"Сыграй чётным числом","odd":"Сыграй нечётным числом","between":"Сыграй числом от {0} до {1}","card":"Карта с зарядом {0}%","charge":"Зарядка!\nДобавлены карты!","confirm":"Нажми ещё раз, чтобы сыграть карту","cardError":"Ошибка с картами. Начни игру заново.","winTurn":"ПОБЕДА!\nЗарядка удалась!","loseTurn":"ПОРАЖЕНИЕ…\nНе удалось зарядить","tieTurn":"НИЧЬЯ!\nЗаряд одинаковый. Обе карты сбрасываются.","overtimeHint":"Дополнительный раунд!\nКто выиграет следующий раунд, победит в игре!","finalWin":"ОБЩАЯ ПОБЕДА!\nБатарея заряжена!","finalLose":"ОБЩЕЕ ПОРАЖЕНИЕ…\nБатарея разряжена…","overtime":"Дополнительный раунд","win":"Победа","lose":"Поражение","progress":"Счёт на момент выхода","final":"Итоговый счёт","same":"Ничьи","charges":"Зарядки","runs":"Сыграно игр","score":"Счёт этой игры","bestLocal":"Личный рекорд","last":"Прошлая игра","firstSaved":"Результат первой попытки записан","bestSaved":"Новый личный рекорд!","sent":"Результат отправлен в рейтинг","firstScore":"Первый результат","pending":"Загрузка","anon":"Аноним","empty":"Записей пока нет: {0}","sending":"Отправка результата в рейтинг…","noSend":"Ты играл без имени, поэтому результат не будет отправлен.","loading":"Загрузка: {0}…","sendFail":"Не удалось отправить результат в рейтинг","unavailable":"Недоступно","loadFail":"Не удалось загрузить рейтинг","count":"{0}","line":"{0}: {1}","shareTitle":"Результат игры {0}","language":"Язык","forgetName":"Удалить сохранённое имя","forgotName":"Имя, сохранённое в этом браузере, удалено.","forgetNameFailed":"Не удалось удалить сохранённое имя. Чтобы сыграть без имени в этот раз, оставьте поле пустым."},"it":{"home":"Home","countdown":"Conto alla rovescia","game":"Partita","result":"Risultato","table":"Tavolo","rankTabs":"Schede della classifica","rule1":"Leggi la dichiarazione del Maestro e gioca una carta con meno batteria.","rule2":"Vince il livello più basso. Livelli uguali danno un pareggio.","rule3":"Quando hai poche carte in mano, ricaricati per riceverne altre.","rule4":"Si giocano 10 turni. In caso di parità, si va allo spareggio.","noBest":"Miglior punteggio: ancora nessuno","name":"Nome (facoltativo)","nameLength":"Fino a 20 caratteri","nameHelp":"Inizia con un nome per entrare in classifica. Puoi giocare anche senza nome.","offline":"Il risultato appare anche se la connessione non funziona.","start":"Inizia partita","shareGame":"Condividi gioco","other":"Altri giochi","ready":"Preparati","round":"Turno {0}","wins":"{0} vittorie, {1} sconfitte","ties":"{0} pareggi","retire":"Abbandona","call":"Dichiarazione del Maestro","remaining":"Al Maestro restano {0} carte","master":"Maestro","you":"Tu","pick":"Scegli una carta","hand":"Le tue carte","online":"Record online","waiting":"In attesa di invio","rankTop":"Primi 3 in classifica","best":"Miglior punteggio","first":"Primo tentativo","bestRank":"Classifica dei migliori punteggi","firstRank":"Classifica del primo tentativo","rankWait":"In attesa: {0}","shareResult":"Condividi risultato","retry":"Gioca di nuovo","return":"Termina (torna alla home)","copied":"Copiato negli appunti","unit":" pt","below":"Gioca {0} o meno","above":"Gioca {0} o più","even":"Gioca un numero pari","odd":"Gioca un numero dispari","between":"Gioca da {0} a {1}","card":"Carta al {0}%","charge":"Ricarica!\nCarte aggiunte!","confirm":"Tocca ancora per giocarla","cardError":"Errore con le carte. Ricomincia la partita.","winTurn":"VITTORIA!\nRicarica riuscita!","loseTurn":"SCONFITTA…\nRicarica non riuscita","tieTurn":"PAREGGIO!\nStessa carica. Entrambe le carte vengono scartate.","overtimeHint":"Spareggio!\nChi vince il prossimo turno vince la partita!","finalWin":"VITTORIA FINALE!\nCarica completa!","finalLose":"SCONFITTA FINALE…\nBatteria scarica…","overtime":"Spareggio","win":"Vittoria","lose":"Sconfitta","progress":"Punteggio all’uscita","final":"Bilancio finale","same":"Pareggi","charges":"Ricariche","runs":"Partite giocate","score":"Punteggio della partita","bestLocal":"Record personale","last":"Partita precedente","firstSaved":"Punteggio del primo tentativo registrato","bestSaved":"Nuovo record personale!","sent":"Punteggio inviato alla classifica","firstScore":"Primo punteggio","pending":"Caricamento","anon":"Anonimo","empty":"Nessuna voce: {0}","sending":"Invio del punteggio alla classifica…","noSend":"Hai giocato senza nome, quindi il punteggio non verrà inviato.","loading":"Caricamento: {0}…","sendFail":"Impossibile inviare il punteggio alla classifica","unavailable":"Non disponibile","loadFail":"Impossibile caricare la classifica","count":"{0}","line":"{0}: {1}","shareTitle":"Risultato di {0}","language":"Lingua","forgetName":"Cancella il nome salvato","forgotName":"Il nome salvato in questo browser è stato cancellato.","forgetNameFailed":"Non è stato possibile cancellare il nome salvato. Lascia il campo vuoto per giocare senza nome questa volta."},"id":{"home":"Beranda","countdown":"Hitung mundur","game":"Permainan","result":"Hasil","table":"Meja","rankTabs":"Tab peringkat","rule1":"Lihat pengumuman Master dan mainkan kartu dengan daya baterai lebih rendah.","rule2":"Daya yang lebih rendah menang. Daya yang sama berarti seri.","rule3":"Saat kartu di tangan menipis, isi daya untuk mendapat kartu baru.","rule4":"Mainkan 10 ronde. Jika seri, lanjut ke ronde tambahan.","noBest":"Skor terbaik: belum ada","name":"Nama (opsional)","nameLength":"Maksimal 20 karakter","nameHelp":"Mulai dengan nama untuk masuk peringkat. Kamu juga bisa bermain tanpa nama.","offline":"Hasil tetap ditampilkan jika koneksi gagal.","start":"Mulai bermain","shareGame":"Bagikan permainan","other":"Permainan lain","ready":"Bersiaplah","round":"Ronde {0}","wins":"{0} menang, {1} kalah","ties":"{0} seri","retire":"Menyerah","call":"Pengumuman Master","remaining":"Kartu Master tersisa {0}","master":"Master","you":"Kamu","pick":"Pilih kartu","hand":"Kartumu","online":"Catatan online","waiting":"Menunggu pengiriman","rankTop":"3 besar peringkat","best":"Skor terbaik","first":"Percobaan pertama","bestRank":"Peringkat skor terbaik","firstRank":"Peringkat percobaan pertama","rankWait":"Menunggu: {0}","shareResult":"Bagikan hasil","retry":"Main lagi","return":"Akhiri (kembali ke beranda)","copied":"Disalin ke papan klip","unit":" poin","below":"Mainkan {0} atau kurang","above":"Mainkan {0} atau lebih","even":"Mainkan angka genap","odd":"Mainkan angka ganjil","between":"Mainkan angka antara {0} dan {1}","card":"Kartu {0}%","charge":"Isi daya!\nKartu ditambahkan!","confirm":"Ketuk lagi untuk memainkan kartu","cardError":"Ada masalah saat memproses kartu. Mulai ulang permainan.","winTurn":"MENANG!\nPengisian daya berhasil!","loseTurn":"KALAH…\nPengisian daya gagal","tieTurn":"SERI!\nDaya sama. Kedua kartu dibuang.","overtimeHint":"Ronde tambahan!\nPemenang ronde berikutnya menang!","finalWin":"MENANG AKHIR!\nDaya penuh!","finalLose":"KALAH AKHIR…\nBaterai habis…","overtime":"Ronde tambahan","win":"Menang","lose":"Kalah","progress":"Catatan saat menyerah","final":"Catatan akhir","same":"Seri","charges":"Isi daya","runs":"Jumlah permainan","score":"Skor kali ini","bestLocal":"Rekor pribadi","last":"Permainan sebelumnya","firstSaved":"Skor percobaan pertama tercatat","bestSaved":"Rekor pribadi baru!","sent":"Skor dikirim ke peringkat","firstScore":"Skor pertama","pending":"Memuat","anon":"Anonim","empty":"Belum ada catatan: {0}","sending":"Mengirim skor ke peringkat…","noSend":"Kamu bermain tanpa nama, jadi skor tidak dikirim.","loading":"Memuat {0}…","sendFail":"Gagal mengirim skor ke peringkat","unavailable":"Tidak tersedia","loadFail":"Gagal memuat peringkat","count":"{0} kali","line":"{0}: {1}","shareTitle":"Hasil {0}","language":"Bahasa","forgetName":"Hapus nama tersimpan","forgotName":"Nama yang tersimpan di browser ini telah dihapus.","forgetNameFailed":"Nama tersimpan tidak dapat dihapus. Kosongkan kolom untuk bermain tanpa nama kali ini."},"tr":{"home":"Ana sayfa","countdown":"Geri sayım","game":"Oyun","result":"Sonuç","table":"Masa","rankTabs":"Sıralama sekmeleri","rule1":"Ustanın duyurusuna bak ve pili daha düşük bir kart oyna.","rule2":"Düşük seviye kazanır. Seviyeler eşitse berabere kalırsınız.","rule3":"Elinde az kart kalınca şarj ederek yeni kartlar al.","rule4":"10 tur oynanır. Beraberlikte uzatmaya gidilir.","noBest":"En iyi puan: henüz yok","name":"Ad (isteğe bağlı)","nameLength":"En fazla 20 karakter","nameHelp":"Sıralamaya girmek için bir adla başla. Adsız da oynayabilirsin.","offline":"Bağlantı kesilse bile sonucun gösterilir.","start":"Oyuna başla","shareGame":"Oyunu paylaş","other":"Diğer oyunlar","ready":"Hazırlan","round":"{0}. tur","wins":"{0} galibiyet, {1} mağlubiyet","ties":"{0} beraberlik","retire":"Pes et","call":"Ustanın duyurusu","remaining":"Ustanın {0} kartı kaldı","master":"Usta","you":"Sen","pick":"Bir kart seç","hand":"Elindeki kartlar","online":"Çevrimiçi kayıt","waiting":"Gönderim bekleniyor","rankTop":"İlk 3","best":"En iyi puan","first":"İlk deneme","bestRank":"En iyi puan sıralaması","firstRank":"İlk deneme sıralaması","rankWait":"Bekleniyor: {0}","shareResult":"Sonucu paylaş","retry":"Yeniden oyna","return":"Bitir (ana sayfaya dön)","copied":"Panoya kopyalandı","unit":" puan","below":"{0} veya daha düşük oyna","above":"{0} veya daha yüksek oyna","even":"Çift sayı oyna","odd":"Tek sayı oyna","between":"{0} ile {1} arasında oyna","card":"%{0} kartı","charge":"Şarj!\nKart eklendi!","confirm":"Oynamak için tekrar dokun","cardError":"Kartlarla ilgili bir sorun oluştu. Oyunu yeniden başlat.","winTurn":"KAZANDIN!\nŞarj başarılı!","loseTurn":"KAYBETTİN…\nŞarj başarısız","tieTurn":"BERABERE!\nŞarj aynı. İki kart da atılır.","overtimeHint":"Uzatma!\nSonraki turu kazanan oyunu alır!","finalWin":"OYUNU KAZANDIN!\nTam şarj!","finalLose":"OYUNU KAYBETTİN…\nPil bitti…","overtime":"Uzatma","win":"Galibiyet","lose":"Mağlubiyet","progress":"Pes ederken durum","final":"Son durum","same":"Beraberlik","charges":"Şarj sayısı","runs":"Oyun sayısı","score":"Bu oyunun puanı","bestLocal":"Kişisel rekor","last":"Önceki oyun","firstSaved":"İlk deneme puanı kaydedildi","bestSaved":"Yeni kişisel rekor!","sent":"Puan sıralamaya gönderildi","firstScore":"İlk puan","pending":"Yükleniyor","anon":"Anonim","empty":"Henüz kayıt yok: {0}","sending":"Puan sıralamaya gönderiliyor…","noSend":"Adsız oynadığın için puanın gönderilmeyecek.","loading":"Yükleniyor: {0}…","sendFail":"Puan sıralamaya gönderilemedi","unavailable":"Alınamadı","loadFail":"Sıralama yüklenemedi","count":"{0} kez","line":"{0}: {1}","shareTitle":"{0} sonucu","language":"Dil","forgetName":"Kayıtlı adı sil","forgotName":"Bu tarayıcıda kayıtlı ad silindi.","forgetNameFailed":"Kayıtlı ad silinemedi. Bu kez adsız oynamak için alanı boş bırakın."},"vi":{"home":"Trang chủ","countdown":"Đếm ngược","game":"Trò chơi","result":"Kết quả","table":"Bàn chơi","rankTabs":"Thẻ bảng xếp hạng","rule1":"Xem lời tuyên bố của Bậc thầy và đánh lá bài có mức pin thấp hơn.","rule2":"Mức pin thấp hơn thắng. Cùng mức pin thì hòa.","rule3":"Khi sắp hết bài trên tay, hãy sạc để nhận thêm bài.","rule4":"Chơi 10 vòng. Nếu hòa, chơi thêm vòng phụ.","noBest":"Điểm cao nhất: chưa có","name":"Tên (không bắt buộc)","nameLength":"Tối đa 20 ký tự","nameHelp":"Nhập tên khi bắt đầu để lên bảng xếp hạng. Bạn vẫn có thể chơi không cần tên.","offline":"Kết quả vẫn hiện khi mất kết nối.","start":"Bắt đầu chơi","shareGame":"Chia sẻ trò chơi","other":"Trò chơi khác","ready":"Hãy chuẩn bị","round":"Vòng {0}","wins":"{0} thắng, {1} thua","ties":"Hòa {0} lần","retire":"Bỏ cuộc","call":"Tuyên bố của Bậc thầy","remaining":"Bậc thầy còn {0} lá bài","master":"Bậc thầy","you":"Bạn","pick":"Chọn một lá bài","hand":"Bài trên tay bạn","online":"Kết quả trực tuyến","waiting":"Đang chờ gửi","rankTop":"3 hạng đầu","best":"Điểm cao nhất","first":"Lần thử đầu","bestRank":"Bảng điểm cao nhất","firstRank":"Bảng xếp hạng lần thử đầu","rankWait":"Đang chờ: {0}","shareResult":"Chia sẻ kết quả","retry":"Chơi lại","return":"Kết thúc (về trang chủ)","copied":"Đã sao chép vào bộ nhớ tạm","unit":" điểm","below":"Đánh lá bài {0} trở xuống","above":"Đánh lá bài {0} trở lên","even":"Đánh số chẵn","odd":"Đánh số lẻ","between":"Đánh lá bài từ {0} đến {1}","card":"Lá bài {0}%","charge":"Sạc pin!\nĐã thêm lá bài!","confirm":"Chạm lần nữa để đánh bài","cardError":"Có lỗi khi xử lý bài. Vui lòng chơi lại.","winTurn":"THẮNG!\nSạc thành công!","loseTurn":"THUA…\nSạc thất bại","tieTurn":"HÒA!\nCùng mức pin. Bỏ cả hai lá bài.","overtimeHint":"Vòng phụ!\nAi thắng vòng sau sẽ thắng cả trận!","finalWin":"THẮNG CHUNG CUỘC!\nĐã sạc đầy!","finalLose":"THUA CHUNG CUỘC…\nHết pin…","overtime":"Vòng phụ","win":"Thắng","lose":"Thua","progress":"Thành tích lúc bỏ cuộc","final":"Thành tích cuối","same":"Hòa","charges":"Số lần sạc","runs":"Số ván đã chơi","score":"Điểm ván này","bestLocal":"Kỷ lục cá nhân","last":"Ván trước","firstSaved":"Đã ghi điểm lần thử đầu","bestSaved":"Kỷ lục cá nhân mới!","sent":"Đã gửi điểm lên bảng xếp hạng","firstScore":"Điểm lần đầu","pending":"Đang tải","anon":"Ẩn danh","empty":"Chưa có dữ liệu: {0}","sending":"Đang gửi điểm lên bảng xếp hạng…","noSend":"Bạn chơi không có tên nên điểm sẽ không được gửi.","loading":"Đang tải {0}…","sendFail":"Không gửi được điểm lên bảng xếp hạng","unavailable":"Không có dữ liệu","loadFail":"Không tải được bảng xếp hạng","count":"{0} lần","line":"{0}: {1}","shareTitle":"Kết quả {0}","language":"Ngôn ngữ","forgetName":"Xóa tên đã lưu","forgotName":"Đã xóa tên lưu trong trình duyệt này.","forgetNameFailed":"Không thể xóa tên đã lưu. Hãy để trống ô nhập để chơi không tên lần này."},"th":{"home":"หน้าหลัก","countdown":"นับถอยหลัง","game":"เกม","result":"ผลการเล่น","table":"กระดาน","rankTabs":"แท็บอันดับ","rule1":"ดูคำประกาศของมาสเตอร์แล้วลงการ์ดที่มีแบตเตอรี่น้อยกว่า","rule2":"แบตเตอรี่น้อยกว่าชนะ ถ้าเท่ากันจะเสมอ","rule3":"เมื่อการ์ดในมือเหลือน้อย ให้ชาร์จเพื่อรับการ์ดเพิ่ม","rule4":"เล่น 10 รอบ หากเสมอจะมีรอบตัดสิน","noBest":"คะแนนสูงสุด: ยังไม่มี","name":"ชื่อ (ไม่บังคับ)","nameLength":"ไม่เกิน 20 ตัวอักษร","nameHelp":"ใส่ชื่อก่อนเริ่มเพื่อขึ้นกระดานอันดับ หรือจะเล่นแบบไม่ใส่ชื่อก็ได้","offline":"ผลการเล่นยังแสดงแม้การเชื่อมต่อจะล้มเหลว","start":"เริ่มเกม","shareGame":"แชร์เกม","other":"เกมอื่น ๆ","ready":"เตรียมตัว","round":"รอบที่ {0}","wins":"ชนะ {0} แพ้ {1}","ties":"เสมอ {0} ครั้ง","retire":"ยอมแพ้","call":"คำประกาศของมาสเตอร์","remaining":"มาสเตอร์เหลือการ์ด {0} ใบ","master":"มาสเตอร์","you":"คุณ","pick":"เลือกการ์ด","hand":"การ์ดในมือคุณ","online":"บันทึกออนไลน์","waiting":"กำลังรอส่ง","rankTop":"3 อันดับแรก","best":"คะแนนสูงสุด","first":"ครั้งแรก","bestRank":"อันดับคะแนนสูงสุด","firstRank":"อันดับการเล่นครั้งแรก","rankWait":"กำลังรอ {0}","shareResult":"แชร์ผลการเล่น","retry":"เล่นอีกครั้ง","return":"จบเกม (กลับหน้าหลัก)","copied":"คัดลอกไปยังคลิปบอร์ดแล้ว","unit":" คะแนน","below":"ลง {0} หรือต่ำกว่า","above":"ลง {0} หรือสูงกว่า","even":"ลงเลขคู่","odd":"ลงเลขคี่","between":"ลงการ์ดระหว่าง {0} ถึง {1}","card":"การ์ด {0}%","charge":"ชาร์จแล้ว!\nได้รับการ์ดเพิ่ม!","confirm":"แตะอีกครั้งเพื่อลงการ์ด","cardError":"เกิดปัญหากับการ์ด โปรดเริ่มเกมใหม่","winTurn":"ชนะ!\nชาร์จสำเร็จ!","loseTurn":"แพ้…\nชาร์จไม่สำเร็จ","tieTurn":"เสมอ!\nแบตเตอรี่เท่ากัน ทิ้งการ์ดทั้งสองใบ","overtimeHint":"รอบตัดสิน!\nผู้ชนะรอบถัดไปชนะทั้งเกม!","finalWin":"ชนะทั้งเกม!\nชาร์จเต็มแล้ว!","finalLose":"แพ้ทั้งเกม…\nแบตเตอรี่หมด…","overtime":"รอบตัดสิน","win":"ชนะ","lose":"แพ้","progress":"ผลขณะยอมแพ้","final":"ผลสุดท้าย","same":"เสมอ","charges":"จำนวนครั้งที่ชาร์จ","runs":"จำนวนเกมที่เล่น","score":"คะแนนเกมนี้","bestLocal":"สถิติสูงสุดของคุณ","last":"เกมก่อนหน้า","firstSaved":"บันทึกคะแนนครั้งแรกแล้ว","bestSaved":"สถิติใหม่ของคุณ!","sent":"ส่งคะแนนเข้ากระดานอันดับแล้ว","firstScore":"คะแนนครั้งแรก","pending":"กำลังโหลด","anon":"ไม่ระบุชื่อ","empty":"ยังไม่มีข้อมูล: {0}","sending":"กำลังส่งคะแนนเข้ากระดานอันดับ…","noSend":"คุณเล่นโดยไม่ใส่ชื่อ จึงจะไม่ส่งคะแนน","loading":"กำลังโหลด {0}…","sendFail":"ส่งคะแนนเข้ากระดานอันดับไม่สำเร็จ","unavailable":"ไม่สามารถรับข้อมูลได้","loadFail":"โหลดกระดานอันดับไม่สำเร็จ","count":"{0} ครั้ง","line":"{0}: {1}","shareTitle":"ผลการเล่น {0}","language":"ภาษา","forgetName":"ล้างชื่อที่บันทึกไว้","forgotName":"ล้างชื่อที่บันทึกไว้ในเบราว์เซอร์นี้แล้ว","forgetNameFailed":"ไม่สามารถล้างชื่อที่บันทึกไว้ได้ เว้นช่องชื่อว่างเพื่อเล่นโดยไม่ใช้ชื่อในครั้งนี้"}};
+      Object.assign(localeText["ja"], {"shareX": "Xでシェア", "shareManualCopy": "投稿画面が開けませんでした。この文章をコピーしてください。"});
+      Object.assign(localeText["en"], {"shareX": "Share on X", "shareManualCopy": "The composer did not open. Copy this text."});
+      Object.assign(localeText["es"], {"shareX": "Compartir en X", "shareManualCopy": "No se abrió el editor. Copia este texto."});
+      Object.assign(localeText["pt-BR"], {"shareX": "Compartilhar no X", "shareManualCopy": "O editor não abriu. Copie este texto."});
+      Object.assign(localeText["zh-Hans"], {"shareX": "在 X 上分享", "shareManualCopy": "未能打开发布窗口。请复制这段文字。"});
+      Object.assign(localeText["zh-Hant"], {"shareX": "在 X 上分享", "shareManualCopy": "未能開啟發文視窗。請複製這段文字。"});
+      Object.assign(localeText["fr"], {"shareX": "Partager sur X", "shareManualCopy": "La fenêtre de publication ne s’est pas ouverte. Copiez ce texte."});
+      Object.assign(localeText["de"], {"shareX": "Auf X teilen", "shareManualCopy": "Das Beitragsfenster wurde nicht geöffnet. Kopiere diesen Text."});
+      Object.assign(localeText["ko"], {"shareX": "X에서 공유", "shareManualCopy": "게시 창이 열리지 않았습니다. 이 문구를 복사하세요."});
+      Object.assign(localeText["ru"], {"shareX": "Поделиться в X", "shareManualCopy": "Окно публикации не открылось. Скопируйте этот текст."});
+      Object.assign(localeText["it"], {"shareX": "Condividi su X", "shareManualCopy": "La finestra di pubblicazione non si è aperta. Copia questo testo."});
+      Object.assign(localeText["id"], {"shareX": "Bagikan di X", "shareManualCopy": "Jendela posting tidak terbuka. Salin teks ini."});
+      Object.assign(localeText["tr"], {"shareX": "X’te paylaş", "shareManualCopy": "Gönderi penceresi açılmadı. Bu metni kopyalayın."});
+      Object.assign(localeText["vi"], {"shareX": "Chia sẻ trên X", "shareManualCopy": "Không mở được cửa sổ đăng bài. Hãy sao chép nội dung này."});
+      Object.assign(localeText["th"], {"shareX": "แชร์บน X", "shareManualCopy": "เปิดหน้าต่างโพสต์ไม่ได้ โปรดคัดลอกข้อความนี้"});
+
+      for (const [id, label] of Object.entries({"ja":"ランキング","en":"Leaderboard","es":"Clasificación","pt-BR":"Ranking","zh-Hans":"排行榜","zh-Hant":"排行榜","fr":"Classement","de":"Rangliste","ko":"순위표","ru":"Рейтинг","it":"Classifica","id":"Papan peringkat","tr":"Sıralama","vi":"Bảng xếp hạng","th":"ตารางอันดับ"})) localeText[id].labRanking = label;
+      for (const [id, [rankTop, rankRetry]] of Object.entries({"ja":["ランキング TOP 30","ランキングを再取得"],"en":["Top 30 rankings","Reload rankings"],"es":["Los 30 primeros de la clasificación","Volver a cargar la clasificación"],"pt-BR":["30 melhores da classificação","Recarregar a classificação"],"zh-Hans":["排行榜前30名","重新加载排行榜"],"zh-Hant":["排行榜前30名","重新載入排行榜"],"fr":["Les 30 premiers du classement","Recharger le classement"],"de":["Top 30 der Rangliste","Rangliste neu laden"],"ko":["순위표 상위 30명","순위표 다시 불러오기"],"ru":["30 лучших в рейтинге","Загрузить рейтинг ещё раз"],"it":["Primi 30 in classifica","Ricarica la classifica"],"id":["30 besar peringkat","Muat ulang peringkat"],"tr":["Sıralamadaki ilk 30","Sıralamayı yeniden yükle"],"vi":["30 hạng đầu","Tải lại bảng xếp hạng"],"th":["30 อันดับแรก","โหลดกระดานอันดับอีกครั้ง"]})) {
+        Object.assign(localeText[id], {rankTop, rankRetry});
+      }
+      const languageSelect = $("languageSelect");
+      const languageKey = "juden-ga-language-v1";
+      let locale = "ja";
+      let clearSavedNameStatusKey = null;
+
+      function t(key, ...values) {
+        return localeText[locale][key].replace(/\{(\d+)\}/g, (placeholder, index) =>
+          index < values.length ? String(values[index]) : placeholder);
+      }
+
+      function applyLocale(next, remember = false) {
+        locale = Object.prototype.hasOwnProperty.call(localeText, next) ? next : "ja";
+        document.documentElement.lang = locale;
+        languageSelect.value = locale;
+        for (const element of document.querySelectorAll("[data-text]")) {
+          const values = element.dataset.textArgs ? JSON.parse(element.dataset.textArgs) : [];
+          element.textContent = t(element.dataset.text, ...values.map((value) =>
+            typeof value === "string" && value.startsWith("@") ? t(value.slice(1)) : value));
+        }
+        for (const element of document.querySelectorAll("[data-aria]")) {
+          element.setAttribute("aria-label", t(element.dataset.aria));
+        }
+        for (const element of document.querySelectorAll("[data-placeholder]")) {
+          element.setAttribute("placeholder", t(element.dataset.placeholder));
+        }
+        if (clearSavedNameStatusKey) {
+          document.getElementById("clearSavedNameStatus").textContent = t(clearSavedNameStatusKey);
+        }
+        if (remember) {
+          try { localStorage.setItem(languageKey, locale); } catch {}
+        }
+        renderHomeBest();
+        if (isCurrentResult(currentResult)) {
+          renderResult();
+          renderOnlinePresentation();
+          if (rankingView?.result === currentResult) {
+            renderRanking("best");
+            renderRanking("first");
+          }
+        }
+      }
+
       const declarations = [
-        { label: "3以下を出す", test: (value) => value <= 3 },
-        { label: "4以下を出す", test: (value) => value <= 4 },
-        { label: "6以下を出す", test: (value) => value <= 6 },
-        { label: "5以上を出す", test: (value) => value >= 5 },
-        { label: "7以上を出す", test: (value) => value >= 7 },
-        { label: "8以上を出す", test: (value) => value >= 8 },
-        { label: "偶数を出す", test: (value) => value % 2 === 0 },
-        { label: "奇数を出す", test: (value) => Math.abs(value % 2) === 1 },
-        { label: "4〜7を出す", test: (value) => value >= 4 && value <= 7 }
+        { label: () => t("below", 3), test: (value) => value <= 3 },
+        { label: () => t("below", 4), test: (value) => value <= 4 },
+        { label: () => t("below", 6), test: (value) => value <= 6 },
+        { label: () => t("above", 5), test: (value) => value >= 5 },
+        { label: () => t("above", 7), test: (value) => value >= 7 },
+        { label: () => t("above", 8), test: (value) => value >= 8 },
+        { label: () => t("even"), test: (value) => value % 2 === 0 },
+        { label: () => t("odd"), test: (value) => Math.abs(value % 2) === 1 },
+        { label: () => t("between", 4, 7), test: (value) => value >= 4 && value <= 7 }
       ];
 
       function createCard(value) {
@@ -1012,7 +1113,7 @@
         if (options.disabled) button.classList.add("disabled");
         if (options.asButton !== false) {
           button.type = "button";
-          button.setAttribute("aria-label", `${card.value}%のカード`);
+          button.setAttribute("aria-label", t("card", card.value));
         }
         const face = document.createElement("div");
         face.className = "battery-face";
@@ -1022,6 +1123,10 @@
       }
 
       function showScreen(name) {
+        if (name !== "result") {
+          rankingView = null;
+          onlinePresentation = null;
+        }
         [homeScreen, countdownScreen, gameScreen, resultScreen].forEach((screen) => {
           screen.classList.remove("active");
         });
@@ -1052,12 +1157,12 @@
 
       function formatSavedScore(value) {
         const numberValue = Number(value);
-        if (!Number.isFinite(numberValue)) return `0${SCORE_UNIT}`;
+        if (!Number.isFinite(numberValue)) return `0${t("unit")}`;
         const displayValue = numberValue / SCORE_SCALE;
         const text = SCORE_DECIMALS > 0
           ? displayValue.toFixed(SCORE_DECIMALS)
-          : Math.round(displayValue).toLocaleString("ja-JP");
-        return `${text}${SCORE_UNIT}`;
+          : Math.round(displayValue).toLocaleString(locale);
+        return `${text}${t("unit")}`;
       }
 
       function cleanName(value) {
@@ -1080,38 +1185,24 @@
         }
       }
 
-      function openNameModal() {
-        nameError.textContent = "";
+      function clearSavedName() {
+        const status = document.getElementById("clearSavedNameStatus");
+        try {
+          localStorage.removeItem(PLAYER_NAME_STORAGE_KEY);
+        } catch {
+          clearSavedNameStatusKey = "forgetNameFailed";
+          status.textContent = t(clearSavedNameStatusKey);
+          return;
+        }
         nameInput.value = "";
-        nameModal.classList.add("active");
-        nameModal.setAttribute("aria-hidden", "false");
-        setTimeout(() => nameInput.focus(), 50);
-      }
-
-      function closeNameModal() {
-        nameModal.classList.remove("active");
-        nameModal.setAttribute("aria-hidden", "true");
+        clearSavedNameStatusKey = "forgotName";
+        status.textContent = t(clearSavedNameStatusKey);
+        nameInput.focus();
       }
 
       function handleStartRequest() {
-        const savedName = loadPlayerName();
-        if (savedName) {
-          playerName = savedName;
-          beginCountdown();
-          return;
-        }
-        openNameModal();
-      }
-
-      function submitNameAndStart() {
-        const name = cleanName(nameInput.value);
-        if (!name) {
-          nameError.textContent = "名前を入力してください";
-          return;
-        }
-        playerName = name;
-        savePlayerName(name);
-        closeNameModal();
+        playerName = cleanName(nameInput.value);
+        if (playerName) savePlayerName(playerName);
         beginCountdown();
       }
 
@@ -1119,7 +1210,6 @@
         clearTimer();
         currentResult = null;
         scoreSubmitted = false;
-        onlineResultInfo = null;
         clearOnlineDisplays();
         showScreen("countdown");
         const counts = ["3", "2", "1"];
@@ -1184,19 +1274,19 @@
             state.playerHand.push(createCard(randomBatteryValue()));
             state.masterHand.push(createCard(randomBatteryValue()));
           }
-          messageBox.textContent = "充電ｶﾞｯ！\nカードを追加！";
+          messageBox.textContent = t("charge");
           chooseMasterCard();
           renderGame();
           setTimer(() => {
             state.locked = false;
-            messageBox.textContent = "カードを選んでください";
+            messageBox.textContent = t("pick");
             renderGame();
           }, 900);
           return;
         }
 
         chooseMasterCard();
-        messageBox.textContent = "カードを選んでください";
+        messageBox.textContent = t("pick");
         renderGame();
       }
 
@@ -1206,7 +1296,7 @@
         const options = declarations.filter((item) => item.test(card.value));
         const picked = options[randomInt(options.length)];
         state.masterCard = card;
-        state.masterDeclaration = picked ? picked.label : "???";
+        state.masterDeclaration = picked ? picked.label() : "???";
       }
 
       function removeCardById(hand, id) {
@@ -1222,7 +1312,7 @@
 
         if (state.selectedCardId !== cardIdValue) {
           state.selectedCardId = cardIdValue;
-          messageBox.textContent = "もう一度タップで出す";
+          messageBox.textContent = t("confirm");
           renderGame();
           return;
         }
@@ -1238,7 +1328,7 @@
         const masterPlayed = removeCardById(state.masterHand, state.masterCard.id);
 
         if (!playedCard || !masterPlayed) {
-          messageBox.textContent = "カード処理で問題が起きました。再ゲームしてください。";
+          messageBox.textContent = t("cardError");
           renderGame();
           return;
         }
@@ -1252,15 +1342,15 @@
           outcome = "win";
           state.wins += 1;
           state.resolvedRounds += 1;
-          messageBox.textContent = "WIN！\n充電成功！";
+          messageBox.textContent = t("winTurn");
         } else if (playedCard.value > masterPlayed.value) {
           outcome = "lose";
           state.losses += 1;
           state.resolvedRounds += 1;
-          messageBox.textContent = "LOSE...\n充電失敗";
+          messageBox.textContent = t("loseTurn");
         } else {
           state.sameCount += 1;
-          messageBox.textContent = "BUMP！\n同じ残量。カードだけ消えた。";
+          messageBox.textContent = t("tieTurn");
         }
 
         renderGame();
@@ -1287,7 +1377,7 @@
 
           state.inOvertime = true;
           setTimer(() => {
-            messageBox.textContent = "延長戦！\n次に勝った方が勝ち！";
+            messageBox.textContent = t("overtimeHint");
             prepareTurn();
           }, 1050);
           return;
@@ -1301,8 +1391,8 @@
         state.locked = true;
 
         messageBox.textContent = status === "win"
-          ? "FINAL WIN！\n充電完了！"
-          : "FINAL LOSE...\n充電切れ…";
+          ? t("finalWin")
+          : t("finalLose");
 
         renderSlots();
 
@@ -1323,24 +1413,26 @@
           score: null
         };
         saveLastRetireIfNeeded();
+        clearOnlineDisplays();
         renderResult();
         showScreen("result");
+        void handleOnlineResult(currentResult);
       }
 
       function renderGame() {
         if (!state) return;
 
-        const roundLabel = state.inOvertime ? "延長戦" : `${Math.min(state.resolvedRounds + 1, 10)}回戦`;
+        const roundLabel = state.inOvertime ? t("overtime") : t("round", Math.min(state.resolvedRounds + 1, 10));
         roundInfo.textContent = roundLabel;
-        scoreInfo.textContent = `${state.wins}勝${state.losses}敗`;
-        sameInfo.textContent = `同残量${state.sameCount}回`;
+        scoreInfo.textContent = t("wins", state.wins, state.losses);
+        sameInfo.textContent = t("ties", state.sameCount);
 
         if (!state.finalStatus) {
           masterAA.textContent = masterNormalAA;
         }
 
-        declaration.textContent = `マスターの宣言\n${state.masterDeclaration || "---"}`;
-        masterCount.textContent = `マスター残り：${state.masterHand.length}枚`;
+        declaration.textContent = `${t("call")}\n${state.masterDeclaration || "---"}`;
+        masterCount.textContent = t("remaining", state.masterHand.length);
 
         renderSlots();
         renderPlayerHand();
@@ -1400,13 +1492,13 @@
         resultStats.innerHTML = "";
 
         if (currentResult.status === "retire") {
-          resultTitle.textContent = "結果：リタイア";
-          addStat("途中成績", `${currentResult.wins}勝${currentResult.losses}敗`);
-          addStat("同残量", `${currentResult.sameCount}回`);
-          addStat("充電回数", `${currentResult.chargeCount}回`);
-          addStat("今回スコア", "リタイア");
+          resultTitle.textContent = t("line", t("result"), t("retire"));
+          addStat(t("progress"), t("wins", currentResult.wins, currentResult.losses));
+          addStat(t("same"), t("count", currentResult.sameCount));
+          addStat(t("charges"), t("count", currentResult.chargeCount));
+          addStat(t("score"), t("retire"));
           onlineBox.style.display = "none";
-          rankingBox.style.display = "none";
+          rankingBox.style.display = "block";
           setResultButtonsVisible(true);
           return;
         }
@@ -1414,11 +1506,11 @@
         const isWin = currentResult.status === "win";
         onlineBox.style.display = "block";
         rankingBox.style.display = "block";
-        resultTitle.textContent = isWin ? "結果：勝ち" : "結果：負け";
-        addStat("最終成績", `${currentResult.wins}勝${currentResult.losses}敗`);
-        addStat("同残量", `${currentResult.sameCount}回`);
-        addStat("充電回数", `${currentResult.chargeCount}回`);
-        addStat("今回スコア", formatSavedScore(currentResult.score));
+        resultTitle.textContent = isWin ? t("line", t("result"), t("win")) : t("line", t("result"), t("lose"));
+        addStat(t("final"), t("wins", currentResult.wins, currentResult.losses));
+        addStat(t("same"), t("count", currentResult.sameCount));
+        addStat(t("charges"), t("count", currentResult.chargeCount));
+        addStat(t("score"), formatSavedScore(currentResult.score));
       }
 
       function addStat(label, value) {
@@ -1437,6 +1529,7 @@
         if (!state) return;
         currentResult = {
           status,
+          submitName: playerName,
           wins: state.wins,
           losses: state.losses,
           sameCount: state.sameCount,
@@ -1453,10 +1546,10 @@
       }
 
       function scoreText(record) {
-        if (!record) return "ベストスコア：まだありません";
-        const resultLabel = record.status === "win" ? "勝ち" : "負け";
+        if (!record) return t("noBest");
+        const resultLabel = record.status === "win" ? t("win") : t("lose");
         const score = scoreFromRecord(record);
-        return `ベストスコア：${formatSavedScore(score)}（${resultLabel} ${record.wins}勝${record.losses}敗 / 同残量${record.sameCount}回 / 充電${record.chargeCount}回）`;
+        return t("line", t("bestLocal"), `${formatSavedScore(score)} (${[resultLabel, t("wins", record.wins, record.losses), t("ties", record.sameCount), t("line", t("charges"), record.chargeCount)].join(" / ")})`);
       }
 
       function getBest() {
@@ -1526,7 +1619,7 @@
         if (!best) {
           const hasRetire = localStorage.getItem(LAST_RETIRE_KEY) === "1";
           if (hasRetire) {
-            bestBox.textContent = "ベストスコア：まだありません\n前回：リタイア";
+            bestBox.textContent = `${t("noBest")}\n${t("line", t("last"), t("retire"))}`;
           }
         }
       }
@@ -1548,10 +1641,14 @@
       }
 
       function clearOnlineDisplays() {
-        supabaseStatus.textContent = "結果送信待ち";
+        rankingView = null;
+        onlinePresentation = null;
+        $("bestRankingRetry").hidden = true;
+        $("firstRankingRetry").hidden = true;
+        supabaseStatus.textContent = t("waiting");
         onlineStats.innerHTML = "";
-        bestRankingStatus.textContent = "最高スコアランキング取得待ち";
-        firstRankingStatus.textContent = "初挑戦ランキング取得待ち";
+        bestRankingStatus.textContent = t("rankWait", t("bestRank"));
+        firstRankingStatus.textContent = t("rankWait", t("firstRank"));
         bestRankingList.innerHTML = "";
         firstRankingList.innerHTML = "";
         setRankingTab("best");
@@ -1566,7 +1663,7 @@
         if (Array.isArray(data)) return data;
         if (data && Array.isArray(data.rows)) return data.rows;
         if (data && Array.isArray(data.data)) return data.data;
-        return [];
+        throw new TypeError("Invalid leaderboard response");
       }
 
       function pickNumber(row, keys) {
@@ -1614,11 +1711,12 @@
       }
 
       async function submitScore(result) {
+        if (!result.submitName) return;
         const client = getSupabaseClient();
         const scoreForSubmit = Math.round(result.score);
 
         const { data, error } = await client.rpc("submit_score", {
-          p_display_name: playerName,
+          p_display_name: result.submitName,
           p_game_slug: GAME_SLUG,
           p_score: scoreForSubmit,
           p_client_version: CLIENT_VERSION
@@ -1646,127 +1744,136 @@
           displayBest
         };
 
-        onlineResultInfo = info;
-
-        const messages = [];
-        if (info.isFirstPlay) {
-          messages.push('<div class="best-update">初挑戦スコアを登録しました</div>');
-        }
-        if (info.isNewBest) {
-          messages.push('<div class="best-update">自己ベスト更新！</div>');
-        }
-
-        supabaseStatus.textContent = "ランキング送信に成功しました";
-        onlineStats.innerHTML = `
-          <div>今回スコア：${formatSavedScore(info.currentScore)}</div>
-          <div>初回スコア：${escapeText(info.displayFirst || formatSavedScore(info.firstScore))}</div>
-          <div>最高スコア：${escapeText(info.displayBest || formatSavedScore(info.bestScore))}</div>
-          <div>プレイ回数：${info.playCount !== null ? info.playCount + "回" : "取得中"}</div>
-          ${messages.join("")}
-        `;
-
         return info;
       }
 
-      function renderRankingRows(rows, listEl, statusEl, emptyMessage, scoreKeys, displayKeys) {
-        listEl.innerHTML = "";
+      function isCurrentResult(result) {
+        return Boolean(result) && currentResult === result && resultScreen.classList.contains("active");
+      }
 
-        if (!rows.length) {
-          statusEl.textContent = emptyMessage;
-          return;
+      function renderOnlinePresentation() {
+        const view = onlinePresentation;
+        if (!view || !isCurrentResult(view.result)) return;
+        supabaseStatus.textContent = t(view.phase);
+        const info = view.info;
+        if (view.phase === "sendFail") {
+          onlineStats.innerHTML = `
+            <div>${escapeText(t("line", t("score"), formatSavedScore(view.result.score)))}</div>
+            <div>${escapeText(t("line", t("firstScore"), t("unavailable")))}</div>
+            <div>${escapeText(t("line", t("best"), t("unavailable")))}</div>
+            <div>${escapeText(t("line", t("runs"), t("unavailable")))}</div>
+          `;
+        } else if (info) {
+          const messages = [];
+          if (info.isFirstPlay) messages.push(`<div class="best-update">${escapeText(t("firstSaved"))}</div>`);
+          if (info.isNewBest) messages.push(`<div class="best-update">${escapeText(t("bestSaved"))}</div>`);
+          onlineStats.innerHTML = `
+            <div>${escapeText(t("line", t("score"), formatSavedScore(info.currentScore)))}</div>
+            <div>${escapeText(t("line", t("firstScore"), info.displayFirst || formatSavedScore(info.firstScore)))}</div>
+            <div>${escapeText(t("line", t("best"), info.displayBest || formatSavedScore(info.bestScore)))}</div>
+            <div>${escapeText(t("line", t("runs"), info.playCount !== null ? t("count", info.playCount) : t("pending")))}</div>
+            ${messages.join("")}
+          `;
+        } else {
+          onlineStats.innerHTML = "";
         }
+      }
 
-        statusEl.textContent = "";
-        rows.slice(0, 3).forEach((row, index) => {
-          const rank = pickNumber(row, ["rank", "ranking", "position", "row_number"]) || index + 1;
-          const name = row.display_name || row.player_name || row.name || row.displayName || "名無し";
-          const displayScore = pickText(row, displayKeys);
-          const rawScore = pickNumber(row, scoreKeys);
-          const score = displayScore || formatSavedScore(rawScore !== null ? rawScore : 0);
+      const rankingKinds = {
+        best: {
+          rpc: "get_best_score_ranking", list: bestRankingList, status: bestRankingStatus, title: "bestRank",
+          scoreKeys: ["score", "best_score", "result_best_score", "highest_score", "high_score", "max_score"],
+          displayKeys: ["display_score", "display_best_score", "score_display", "best_score_display"]
+        },
+        first: {
+          rpc: "get_first_try_ranking", list: firstRankingList, status: firstRankingStatus, title: "firstRank",
+          scoreKeys: ["score", "first_score", "first_try_score", "result_first_score", "initial_score"],
+          displayKeys: ["display_score", "display_first_score", "score_display", "first_score_display"]
+        }
+      };
+
+      function renderRanking(kind) {
+        const view = rankingView;
+        if (!view || !isCurrentResult(view.result)) return;
+        const data = view[kind];
+        const ui = rankingKinds[kind];
+        const retry = $(`${kind}RankingRetry`);
+        retry.hidden = !data.retryVisible;
+        retry.setAttribute("aria-disabled", data.phase === "loading" ? "true" : "false");
+        ui.status.textContent = data.phase === "loading" ? t("loading", t(ui.title))
+          : data.phase === "error" ? t("loadFail") : data.rows.length ? "" : t("empty", t(ui.title));
+        ui.list.innerHTML = "";
+        data.rows.forEach(raw => {
+          const row = raw && typeof raw === "object" ? raw : {};
+          const rank = pickNumber(row, ["rank_no", "rank", "ranking"]);
+          const rankText = Number.isInteger(rank) && rank > 0 ? (locale === "ja" ? `${rank}位` : `#${rank}`) : "—";
+          const name = row.display_name || row.player_name || row.name || row.displayName || t("anon");
+          const rawScore = pickNumber(row, ui.scoreKeys);
+          const score = pickText(row, ui.displayKeys) || (rawScore === null ? "—" : formatSavedScore(rawScore));
           const li = document.createElement("li");
-          li.innerHTML = `${rank}位　${escapeText(name)}　${escapeText(score)}`;
-          listEl.appendChild(li);
+          li.textContent = `${rankText}　${name}　${score}`;
+          ui.list.appendChild(li);
         });
       }
 
-      async function loadBestScoreRanking() {
-        const client = getSupabaseClient();
-        const { data, error } = await client.rpc("get_best_score_ranking", {
-          p_game_slug: GAME_SLUG,
-          p_limit: 3
-        });
-
-        if (error) throw error;
-
-        renderRankingRows(
-          normalizeRankingRows(data),
-          bestRankingList,
-          bestRankingStatus,
-          "最高スコアランキングはまだありません",
-          ["score", "best_score", "result_best_score", "highest_score", "high_score", "max_score"],
-          ["display_score", "display_best_score", "score_display", "best_score_display"]
-        );
+      async function loadRanking(kind, view, supersede = false) {
+        if (!view || rankingView !== view || !isCurrentResult(view.result)) return;
+        const data = view[kind];
+        if (data.phase === "loading" && !supersede) return;
+        const request = ++data.request;
+        data.phase = "loading";
+        renderRanking(kind);
+        const stillCurrent = () => rankingView === view && data.request === request && isCurrentResult(view.result);
+        try {
+          const { data: rows, error } = await getSupabaseClient().rpc(rankingKinds[kind].rpc, {
+            p_game_slug: GAME_SLUG, p_limit: RANKING_LIMIT
+          });
+          if (!stillCurrent()) return;
+          if (error) throw error;
+          data.rows = normalizeRankingRows(rows).slice(0, RANKING_LIMIT);
+          data.phase = "ready";
+        } catch {
+          if (!stillCurrent()) return;
+          data.rows = [];
+          data.phase = "error";
+          data.retryVisible = true;
+        }
+        renderRanking(kind);
       }
 
-      async function loadFirstTryRanking() {
-        const client = getSupabaseClient();
-        const { data, error } = await client.rpc("get_first_try_ranking", {
-          p_game_slug: GAME_SLUG,
-          p_limit: 3
-        });
-
-        if (error) throw error;
-
-        renderRankingRows(
-          normalizeRankingRows(data),
-          firstRankingList,
-          firstRankingStatus,
-          "初挑戦ランキングはまだありません",
-          ["score", "first_score", "first_try_score", "result_first_score", "initial_score"],
-          ["display_score", "display_first_score", "score_display", "first_score_display"]
-        );
+      function retryRanking(kind) {
+        const view = rankingView;
+        if (view?.[kind].retryVisible && view[kind].phase !== "loading") void loadRanking(kind, view);
       }
 
       async function handleOnlineResult(result) {
-        supabaseStatus.textContent = "ランキング送信中…";
-        onlineStats.innerHTML = "";
-        bestRankingStatus.textContent = "最高スコアランキング取得中…";
-        firstRankingStatus.textContent = "初挑戦ランキング取得中…";
-        bestRankingList.innerHTML = "";
-        firstRankingList.innerHTML = "";
-        setRankingTab("best");
-        setResultButtonsVisible(false);
-
-        if (!scoreSubmitted) {
-          scoreSubmitted = true;
-          try {
-            await submitScore(result);
-          } catch (error) {
-            console.warn("submit_score failed", error);
-            supabaseStatus.textContent = "ランキング連携に失敗しました😅";
-            onlineStats.innerHTML = `
-              <div>今回スコア：${formatSavedScore(result.score)}</div>
-              <div>初回スコア：取得できませんでした</div>
-              <div>最高スコア：取得できませんでした</div>
-              <div>プレイ回数：取得できませんでした</div>
-            `;
-          }
+        if (!isCurrentResult(result)) return;
+        const nextPanel = () => ({rows: [], phase: "idle", request: 0, retryVisible: false});
+        const view = {result, best: nextPanel(), first: nextPanel()};
+        rankingView = view;
+        const publishScore = result.status !== "retire" && Boolean(result.submitName) && !scoreSubmitted;
+        if (result.status !== "retire") {
+          onlinePresentation = { result, phase: publishScore ? "sending" : "noSend" };
+          renderOnlinePresentation();
         }
+        setResultButtonsVisible(!publishScore);
+        void loadRanking("best", view);
+        void loadRanking("first", view);
+        if (!publishScore) return;
 
-        const rankingTasks = [
-          loadBestScoreRanking().catch((error) => {
-            console.warn("get_best_score_ranking failed", error);
-            bestRankingStatus.textContent = "ランキングの取得に失敗しました";
-            bestRankingList.innerHTML = "";
-          }),
-          loadFirstTryRanking().catch((error) => {
-            console.warn("get_first_try_ranking failed", error);
-            firstRankingStatus.textContent = "ランキングの取得に失敗しました";
-            firstRankingList.innerHTML = "";
-          })
-        ];
-
-        await Promise.allSettled(rankingTasks);
+        scoreSubmitted = true;
+        try {
+          const info = await submitScore(result);
+          if (rankingView !== view || !isCurrentResult(result)) return;
+          onlinePresentation = {result, phase: "sent", info};
+          // Re-read the server's ordered lists after the acknowledged score.
+          void loadRanking("best", view, true);
+          void loadRanking("first", view, true);
+        } catch {
+          if (rankingView !== view || !isCurrentResult(result)) return;
+          onlinePresentation = {result, phase: "sendFail"};
+        }
+        renderOnlinePresentation();
         setResultButtonsVisible(true);
       }
 
@@ -1781,32 +1888,28 @@
       }
 
       function resultShareText() {
-        if (!currentResult) return `${GAME_TITLE} 結果\n${GAME_URL}`;
+        if (!currentResult) return `${t("shareTitle", GAME_TITLE)}\n${GAME_URL}`;
 
         if (currentResult.status === "retire") {
           return [
-            `${GAME_TITLE} 結果`,
-            "結果：リタイア",
-            `途中成績：${currentResult.wins}勝${currentResult.losses}敗`,
-            `同残量：${currentResult.sameCount}回`,
-            `充電回数：${currentResult.chargeCount}回`,
-            "今回スコア：リタイア",
+            t("shareTitle", GAME_TITLE),
+            t("line", t("result"), t("retire")),
+            t("line", t("progress"), t("wins", currentResult.wins, currentResult.losses)),
+            t("line", t("same"), t("count", currentResult.sameCount)),
+            t("line", t("charges"), t("count", currentResult.chargeCount)),
+            t("line", t("score"), t("retire")),
             GAME_URL
           ].join("\n");
         }
 
-        const label = currentResult.status === "win" ? "勝ち" : "負け";
-        const bestLine = onlineResultInfo && onlineResultInfo.displayBest
-          ? `最高スコア：${onlineResultInfo.displayBest}`
-          : "";
+        const label = currentResult.status === "win" ? t("win") : t("lose");
         return [
-          `${GAME_TITLE} 結果`,
-          `結果：${label}`,
-          `最終成績：${currentResult.wins}勝${currentResult.losses}敗`,
-          `同残量：${currentResult.sameCount}回`,
-          `充電回数：${currentResult.chargeCount}回`,
-          `今回スコア：${formatSavedScore(currentResult.score)}`,
-          bestLine,
+          t("shareTitle", GAME_TITLE),
+          t("line", t("result"), label),
+          t("line", t("final"), t("wins", currentResult.wins, currentResult.losses)),
+          t("line", t("same"), t("count", currentResult.sameCount)),
+          t("line", t("charges"), t("count", currentResult.chargeCount)),
+          t("line", t("score"), formatSavedScore(currentResult.score)),
           GAME_URL
         ].filter(Boolean).join("\n");
       }
@@ -1814,26 +1917,42 @@
       function gameShareText() {
         return [
           GAME_TITLE,
-          "マスターの宣言を見て、より低いバッテリー残量を出そう。",
+          t("rule1"),
           GAME_URL
         ].join("\n");
+      }
+
+      async function shareOnX(shareText) {
+        const text = shareText.split(GAME_URL).join('').trimEnd();
+        const intent = new URL('https://twitter.com/intent/tweet');
+        intent.searchParams.set('text', text);
+        intent.searchParams.set('url', GAME_URL);
+        let popup;
+        try {
+          popup = window.open('about:blank', '_blank');
+          if (popup && !popup.closed) {
+            popup.opener = null;
+            popup.location.replace(intent.href);
+            return;
+          }
+        } catch {
+          try { popup?.close(); } catch {}
+        }
+        const fullText = text + '\n' + GAME_URL;
+        if (await copyText(fullText)) {
+          showToast();
+          return;
+        }
+        window.prompt(t("shareManualCopy"), fullText);
       }
 
       async function copyText(text) {
         try {
           if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(text);
-          } else {
-            fallbackCopy(text);
+            return true;
           }
-          showToast();
-        } catch {
-          fallbackCopy(text);
-          showToast();
-        }
-      }
-
-      function fallbackCopy(text) {
+        } catch {}
         const area = document.createElement("textarea");
         area.value = text;
         area.setAttribute("readonly", "");
@@ -1841,10 +1960,15 @@
         area.style.left = "-9999px";
         area.style.top = "0";
         document.body.appendChild(area);
-        area.focus();
-        area.select();
-        document.execCommand("copy");
-        document.body.removeChild(area);
+        try {
+          area.focus();
+          area.select();
+          return document.execCommand("copy");
+        } catch {
+          return false;
+        } finally {
+          document.body.removeChild(area);
+        }
       }
 
       function showToast() {
@@ -1854,13 +1978,14 @@
         }, 1000);
       }
 
+      document.getElementById("clearSavedNameButton").addEventListener("click", clearSavedName);
+      nameInput.addEventListener("input", () => {
+        clearSavedNameStatusKey = null;
+        document.getElementById("clearSavedNameStatus").textContent = "";
+      });
       startBtn.addEventListener("click", handleStartRequest);
       restartBtn.addEventListener("click", handleStartRequest);
       retireBtn.addEventListener("click", retireGame);
-      nameSubmitBtn.addEventListener("click", submitNameAndStart);
-      nameInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") submitNameAndStart();
-      });
 
       endBtn.addEventListener("click", () => {
         clearTimer();
@@ -1868,12 +1993,37 @@
         showScreen("home");
       });
 
-      shareGameBtn.addEventListener("click", () => copyText(gameShareText()));
-      shareResultBtn.addEventListener("click", () => copyText(resultShareText()));
+      shareGameBtn.addEventListener("click", () => shareOnX(gameShareText()));
+      shareResultBtn.addEventListener("click", () => shareOnX(resultShareText()));
       bestRankingTab.addEventListener("click", () => setRankingTab("best"));
       firstRankingTab.addEventListener("click", () => setRankingTab("first"));
+      $("bestRankingRetry").addEventListener("click", () => retryRanking("best"));
+      $("firstRankingRetry").addEventListener("click", () => retryRanking("first"));
 
-      renderHomeBest();
+      nameInput.value = loadPlayerName();
+      languageSelect.addEventListener("change", () => applyLocale(languageSelect.value, true));
+      let initialLocale = null;
+      try {
+        const savedLocale = localStorage.getItem(languageKey);
+        if (Object.hasOwn(localeText, savedLocale)) initialLocale = savedLocale;
+      } catch {}
+      if (!initialLocale) {
+        const browser = typeof navigator === "undefined" ? null : navigator;
+        const ordered = [...(browser?.languages || []), browser?.language]
+          .filter(value => typeof value === "string" && value.trim());
+        const match = value => {
+          const [base, ...subtags] = value.trim().toLowerCase().split("-");
+          if (base === "zh") {
+            if (subtags[0] === "hans") return "zh-Hans";
+            if (subtags[0] === "hant") return "zh-Hant";
+            return ["tw", "hk", "mo"].includes(subtags[0]) ? "zh-Hant" : "zh-Hans";
+          }
+          if (base === "pt") return "pt-BR";
+          return Object.hasOwn(localeText, base) ? base : null;
+        };
+        initialLocale = ordered.map(match).find(Boolean) || (ordered.length ? "en" : "ja");
+      }
+      applyLocale(initialLocale);
       clearOnlineDisplays();
     })();
   </script>

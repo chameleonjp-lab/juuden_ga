@@ -559,6 +559,22 @@
       line-height: 1.5;
     }
 
+    .ranking-list {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .ranking-retry {
+      min-height: 44px;
+      margin-top: 8px;
+      padding-inline: 14px;
+    }
+
+    .ranking-retry:focus-visible {
+      outline: 3px solid #124b95;
+      outline-offset: 2px;
+    }
+
     .name-settings {
       display: grid;
       gap: 6px;
@@ -845,7 +861,7 @@
         </div>
 
         <div id="rankingBox" class="ranking-box">
-          <div class="ranking-title" data-text="rankTop">ランキング TOP 3</div>
+          <div class="ranking-title" data-text="rankTop">ランキング TOP 30</div>
           <div class="ranking-tabs" role="tablist" aria-label="ランキング切り替え" data-aria="rankTabs">
             <button id="bestRankingTab" class="ranking-tab active" type="button" aria-selected="true" data-text="best">最高スコア</button>
             <button id="firstRankingTab" class="ranking-tab" type="button" aria-selected="false" data-text="first">初挑戦</button>
@@ -853,14 +869,16 @@
 
           <div id="bestRankingPanel" class="ranking-panel active">
             <div class="ranking-subtitle" data-text="bestRank">最高スコアランキング</div>
-            <div id="bestRankingStatus" class="ranking-status" data-text="rankWait" data-text-args='["@bestRank"]'>最高スコアランキング取得待ち</div>
-            <ol id="bestRankingList" class="ranking-list"></ol>
+            <div id="bestRankingStatus" class="ranking-status" role="status" aria-live="polite" data-text="rankWait" data-text-args='["@bestRank"]'>最高スコアランキング取得待ち</div>
+            <ol id="bestRankingList" class="ranking-list" role="list"></ol>
+            <button id="bestRankingRetry" class="btn ranking-retry" type="button" data-text="rankRetry" hidden>ランキングを再取得</button>
           </div>
 
           <div id="firstRankingPanel" class="ranking-panel">
             <div class="ranking-subtitle" data-text="firstRank">初挑戦ランキング</div>
-            <div id="firstRankingStatus" class="ranking-status" data-text="rankWait" data-text-args='["@firstRank"]'>初挑戦ランキング取得待ち</div>
-            <ol id="firstRankingList" class="ranking-list"></ol>
+            <div id="firstRankingStatus" class="ranking-status" role="status" aria-live="polite" data-text="rankWait" data-text-args='["@firstRank"]'>初挑戦ランキング取得待ち</div>
+            <ol id="firstRankingList" class="ranking-list" role="list"></ol>
+            <button id="firstRankingRetry" class="btn ranking-retry" type="button" data-text="rankRetry" hidden>ランキングを再取得</button>
           </div>
         </div>
 
@@ -966,7 +984,9 @@
       let supabaseClient = null;
       let playerName = "";
       let scoreSubmitted = false;
-      let onlineResultInfo = null;
+      const RANKING_LIMIT = 30;
+      let onlinePresentation = null;
+      let rankingView = null;
 
       document.addEventListener("dblclick", (event) => {
         event.preventDefault();
@@ -990,6 +1010,9 @@
       Object.assign(localeText["th"], {"shareX": "แชร์บน X", "shareManualCopy": "เปิดหน้าต่างโพสต์ไม่ได้ โปรดคัดลอกข้อความนี้"});
 
       for (const [id, label] of Object.entries({"ja":"ランキング","en":"Leaderboard","es":"Clasificación","pt-BR":"Ranking","zh-Hans":"排行榜","zh-Hant":"排行榜","fr":"Classement","de":"Rangliste","ko":"순위표","ru":"Рейтинг","it":"Classifica","id":"Papan peringkat","tr":"Sıralama","vi":"Bảng xếp hạng","th":"ตารางอันดับ"})) localeText[id].labRanking = label;
+      for (const [id, [rankTop, rankRetry]] of Object.entries({"ja":["ランキング TOP 30","ランキングを再取得"],"en":["Top 30 rankings","Reload rankings"],"es":["Los 30 primeros de la clasificación","Volver a cargar la clasificación"],"pt-BR":["30 melhores da classificação","Recarregar a classificação"],"zh-Hans":["排行榜前30名","重新加载排行榜"],"zh-Hant":["排行榜前30名","重新載入排行榜"],"fr":["Les 30 premiers du classement","Recharger le classement"],"de":["Top 30 der Rangliste","Rangliste neu laden"],"ko":["순위표 상위 30명","순위표 다시 불러오기"],"ru":["30 лучших в рейтинге","Загрузить рейтинг ещё раз"],"it":["Primi 30 in classifica","Ricarica la classifica"],"id":["30 besar peringkat","Muat ulang peringkat"],"tr":["Sıralamadaki ilk 30","Sıralamayı yeniden yükle"],"vi":["30 hạng đầu","Tải lại bảng xếp hạng"],"th":["30 อันดับแรก","โหลดกระดานอันดับอีกครั้ง"]})) {
+        Object.assign(localeText[id], {rankTop, rankRetry});
+      }
       const languageSelect = $("languageSelect");
       const languageKey = "juden-ga-language-v1";
       let locale = "ja";
@@ -1022,6 +1045,14 @@
           try { localStorage.setItem(languageKey, locale); } catch {}
         }
         renderHomeBest();
+        if (isCurrentResult(currentResult)) {
+          renderResult();
+          renderOnlinePresentation();
+          if (rankingView?.result === currentResult) {
+            renderRanking("best");
+            renderRanking("first");
+          }
+        }
       }
 
       const declarations = [
@@ -1092,6 +1123,10 @@
       }
 
       function showScreen(name) {
+        if (name !== "result") {
+          rankingView = null;
+          onlinePresentation = null;
+        }
         [homeScreen, countdownScreen, gameScreen, resultScreen].forEach((screen) => {
           screen.classList.remove("active");
         });
@@ -1175,7 +1210,6 @@
         clearTimer();
         currentResult = null;
         scoreSubmitted = false;
-        onlineResultInfo = null;
         clearOnlineDisplays();
         showScreen("countdown");
         const counts = ["3", "2", "1"];
@@ -1379,8 +1413,10 @@
           score: null
         };
         saveLastRetireIfNeeded();
+        clearOnlineDisplays();
         renderResult();
         showScreen("result");
+        void handleOnlineResult(currentResult);
       }
 
       function renderGame() {
@@ -1462,7 +1498,7 @@
           addStat(t("charges"), t("count", currentResult.chargeCount));
           addStat(t("score"), t("retire"));
           onlineBox.style.display = "none";
-          rankingBox.style.display = "none";
+          rankingBox.style.display = "block";
           setResultButtonsVisible(true);
           return;
         }
@@ -1605,6 +1641,10 @@
       }
 
       function clearOnlineDisplays() {
+        rankingView = null;
+        onlinePresentation = null;
+        $("bestRankingRetry").hidden = true;
+        $("firstRankingRetry").hidden = true;
         supabaseStatus.textContent = t("waiting");
         onlineStats.innerHTML = "";
         bestRankingStatus.textContent = t("rankWait", t("bestRank"));
@@ -1623,7 +1663,7 @@
         if (Array.isArray(data)) return data;
         if (data && Array.isArray(data.rows)) return data.rows;
         if (data && Array.isArray(data.data)) return data.data;
-        return [];
+        throw new TypeError("Invalid leaderboard response");
       }
 
       function pickNumber(row, keys) {
@@ -1704,129 +1744,136 @@
           displayBest
         };
 
-        onlineResultInfo = info;
-
-        const messages = [];
-        if (info.isFirstPlay) {
-          messages.push(`<div class="best-update">${escapeText(t("firstSaved"))}</div>`);
-        }
-        if (info.isNewBest) {
-          messages.push(`<div class="best-update">${escapeText(t("bestSaved"))}</div>`);
-        }
-
-        supabaseStatus.textContent = t("sent");
-        onlineStats.innerHTML = `
-          <div>${escapeText(t("line", t("score"), formatSavedScore(info.currentScore)))}</div>
-          <div>${escapeText(t("line", t("firstScore"), info.displayFirst || formatSavedScore(info.firstScore)))}</div>
-          <div>${escapeText(t("line", t("best"), info.displayBest || formatSavedScore(info.bestScore)))}</div>
-          <div>${escapeText(t("line", t("runs"), info.playCount !== null ? t("count", info.playCount) : t("pending")))}</div>
-          ${messages.join("")}
-        `;
-
         return info;
       }
 
-      function renderRankingRows(rows, listEl, statusEl, emptyMessage, scoreKeys, displayKeys) {
-        listEl.innerHTML = "";
+      function isCurrentResult(result) {
+        return Boolean(result) && currentResult === result && resultScreen.classList.contains("active");
+      }
 
-        if (!rows.length) {
-          statusEl.textContent = emptyMessage;
-          return;
+      function renderOnlinePresentation() {
+        const view = onlinePresentation;
+        if (!view || !isCurrentResult(view.result)) return;
+        supabaseStatus.textContent = t(view.phase);
+        const info = view.info;
+        if (view.phase === "sendFail") {
+          onlineStats.innerHTML = `
+            <div>${escapeText(t("line", t("score"), formatSavedScore(view.result.score)))}</div>
+            <div>${escapeText(t("line", t("firstScore"), t("unavailable")))}</div>
+            <div>${escapeText(t("line", t("best"), t("unavailable")))}</div>
+            <div>${escapeText(t("line", t("runs"), t("unavailable")))}</div>
+          `;
+        } else if (info) {
+          const messages = [];
+          if (info.isFirstPlay) messages.push(`<div class="best-update">${escapeText(t("firstSaved"))}</div>`);
+          if (info.isNewBest) messages.push(`<div class="best-update">${escapeText(t("bestSaved"))}</div>`);
+          onlineStats.innerHTML = `
+            <div>${escapeText(t("line", t("score"), formatSavedScore(info.currentScore)))}</div>
+            <div>${escapeText(t("line", t("firstScore"), info.displayFirst || formatSavedScore(info.firstScore)))}</div>
+            <div>${escapeText(t("line", t("best"), info.displayBest || formatSavedScore(info.bestScore)))}</div>
+            <div>${escapeText(t("line", t("runs"), info.playCount !== null ? t("count", info.playCount) : t("pending")))}</div>
+            ${messages.join("")}
+          `;
+        } else {
+          onlineStats.innerHTML = "";
         }
+      }
 
-        statusEl.textContent = "";
-        rows.slice(0, 3).forEach((row, index) => {
-          const rank = pickNumber(row, ["rank", "ranking", "position", "row_number"]) || index + 1;
+      const rankingKinds = {
+        best: {
+          rpc: "get_best_score_ranking", list: bestRankingList, status: bestRankingStatus, title: "bestRank",
+          scoreKeys: ["score", "best_score", "result_best_score", "highest_score", "high_score", "max_score"],
+          displayKeys: ["display_score", "display_best_score", "score_display", "best_score_display"]
+        },
+        first: {
+          rpc: "get_first_try_ranking", list: firstRankingList, status: firstRankingStatus, title: "firstRank",
+          scoreKeys: ["score", "first_score", "first_try_score", "result_first_score", "initial_score"],
+          displayKeys: ["display_score", "display_first_score", "score_display", "first_score_display"]
+        }
+      };
+
+      function renderRanking(kind) {
+        const view = rankingView;
+        if (!view || !isCurrentResult(view.result)) return;
+        const data = view[kind];
+        const ui = rankingKinds[kind];
+        const retry = $(`${kind}RankingRetry`);
+        retry.hidden = !data.retryVisible;
+        retry.setAttribute("aria-disabled", data.phase === "loading" ? "true" : "false");
+        ui.status.textContent = data.phase === "loading" ? t("loading", t(ui.title))
+          : data.phase === "error" ? t("loadFail") : data.rows.length ? "" : t("empty", t(ui.title));
+        ui.list.innerHTML = "";
+        data.rows.forEach(raw => {
+          const row = raw && typeof raw === "object" ? raw : {};
+          const rank = pickNumber(row, ["rank_no", "rank", "ranking"]);
+          const rankText = Number.isInteger(rank) && rank > 0 ? (locale === "ja" ? `${rank}位` : `#${rank}`) : "—";
           const name = row.display_name || row.player_name || row.name || row.displayName || t("anon");
-          const displayScore = pickText(row, displayKeys);
-          const rawScore = pickNumber(row, scoreKeys);
-          const score = displayScore || formatSavedScore(rawScore !== null ? rawScore : 0);
+          const rawScore = pickNumber(row, ui.scoreKeys);
+          const score = pickText(row, ui.displayKeys) || (rawScore === null ? "—" : formatSavedScore(rawScore));
           const li = document.createElement("li");
-          li.innerHTML = `${locale === "ja" ? rank + "位" : "#" + rank}　${escapeText(name)}　${escapeText(score)}`;
-          listEl.appendChild(li);
+          li.textContent = `${rankText}　${name}　${score}`;
+          ui.list.appendChild(li);
         });
       }
 
-      async function loadBestScoreRanking() {
-        const client = getSupabaseClient();
-        const { data, error } = await client.rpc("get_best_score_ranking", {
-          p_game_slug: GAME_SLUG,
-          p_limit: 3
-        });
-
-        if (error) throw error;
-
-        renderRankingRows(
-          normalizeRankingRows(data),
-          bestRankingList,
-          bestRankingStatus,
-          t("empty", t("bestRank")),
-          ["score", "best_score", "result_best_score", "highest_score", "high_score", "max_score"],
-          ["display_score", "display_best_score", "score_display", "best_score_display"]
-        );
+      async function loadRanking(kind, view, supersede = false) {
+        if (!view || rankingView !== view || !isCurrentResult(view.result)) return;
+        const data = view[kind];
+        if (data.phase === "loading" && !supersede) return;
+        const request = ++data.request;
+        data.phase = "loading";
+        renderRanking(kind);
+        const stillCurrent = () => rankingView === view && data.request === request && isCurrentResult(view.result);
+        try {
+          const { data: rows, error } = await getSupabaseClient().rpc(rankingKinds[kind].rpc, {
+            p_game_slug: GAME_SLUG, p_limit: RANKING_LIMIT
+          });
+          if (!stillCurrent()) return;
+          if (error) throw error;
+          data.rows = normalizeRankingRows(rows).slice(0, RANKING_LIMIT);
+          data.phase = "ready";
+        } catch {
+          if (!stillCurrent()) return;
+          data.rows = [];
+          data.phase = "error";
+          data.retryVisible = true;
+        }
+        renderRanking(kind);
       }
 
-      async function loadFirstTryRanking() {
-        const client = getSupabaseClient();
-        const { data, error } = await client.rpc("get_first_try_ranking", {
-          p_game_slug: GAME_SLUG,
-          p_limit: 3
-        });
-
-        if (error) throw error;
-
-        renderRankingRows(
-          normalizeRankingRows(data),
-          firstRankingList,
-          firstRankingStatus,
-          t("empty", t("firstRank")),
-          ["score", "first_score", "first_try_score", "result_first_score", "initial_score"],
-          ["display_score", "display_first_score", "score_display", "first_score_display"]
-        );
+      function retryRanking(kind) {
+        const view = rankingView;
+        if (view?.[kind].retryVisible && view[kind].phase !== "loading") void loadRanking(kind, view);
       }
 
       async function handleOnlineResult(result) {
-        supabaseStatus.textContent = result.submitName
-          ? t("sending")
-          : t("noSend");
-        onlineStats.innerHTML = "";
-        bestRankingStatus.textContent = t("loading", t("bestRank"));
-        firstRankingStatus.textContent = t("loading", t("firstRank"));
-        bestRankingList.innerHTML = "";
-        firstRankingList.innerHTML = "";
-        setRankingTab("best");
-        setResultButtonsVisible(false);
-
-        if (result.submitName && !scoreSubmitted) {
-          scoreSubmitted = true;
-          try {
-            await submitScore(result);
-          } catch (error) {
-            console.warn("submit_score failed", error);
-            supabaseStatus.textContent = t("sendFail");
-            onlineStats.innerHTML = `
-              <div>${escapeText(t("line", t("score"), formatSavedScore(result.score)))}</div>
-              <div>${escapeText(t("line", t("firstScore"), t("unavailable")))}</div>
-              <div>${escapeText(t("line", t("best"), t("unavailable")))}</div>
-              <div>${escapeText(t("line", t("runs"), t("unavailable")))}</div>
-            `;
-          }
+        if (!isCurrentResult(result)) return;
+        const nextPanel = () => ({rows: [], phase: "idle", request: 0, retryVisible: false});
+        const view = {result, best: nextPanel(), first: nextPanel()};
+        rankingView = view;
+        const publishScore = result.status !== "retire" && Boolean(result.submitName) && !scoreSubmitted;
+        if (result.status !== "retire") {
+          onlinePresentation = { result, phase: publishScore ? "sending" : "noSend" };
+          renderOnlinePresentation();
         }
+        setResultButtonsVisible(!publishScore);
+        void loadRanking("best", view);
+        void loadRanking("first", view);
+        if (!publishScore) return;
 
-        const rankingTasks = [
-          loadBestScoreRanking().catch((error) => {
-            console.warn("get_best_score_ranking failed", error);
-            bestRankingStatus.textContent = t("loadFail");
-            bestRankingList.innerHTML = "";
-          }),
-          loadFirstTryRanking().catch((error) => {
-            console.warn("get_first_try_ranking failed", error);
-            firstRankingStatus.textContent = t("loadFail");
-            firstRankingList.innerHTML = "";
-          })
-        ];
-
-        await Promise.allSettled(rankingTasks);
+        scoreSubmitted = true;
+        try {
+          const info = await submitScore(result);
+          if (rankingView !== view || !isCurrentResult(result)) return;
+          onlinePresentation = {result, phase: "sent", info};
+          // Re-read the server's ordered lists after the acknowledged score.
+          void loadRanking("best", view, true);
+          void loadRanking("first", view, true);
+        } catch {
+          if (rankingView !== view || !isCurrentResult(result)) return;
+          onlinePresentation = {result, phase: "sendFail"};
+        }
+        renderOnlinePresentation();
         setResultButtonsVisible(true);
       }
 
@@ -1950,6 +1997,8 @@
       shareResultBtn.addEventListener("click", () => shareOnX(resultShareText()));
       bestRankingTab.addEventListener("click", () => setRankingTab("best"));
       firstRankingTab.addEventListener("click", () => setRankingTab("first"));
+      $("bestRankingRetry").addEventListener("click", () => retryRanking("best"));
+      $("firstRankingRetry").addEventListener("click", () => retryRanking("first"));
 
       nameInput.value = loadPlayerName();
       languageSelect.addEventListener("change", () => applyLocale(languageSelect.value, true));

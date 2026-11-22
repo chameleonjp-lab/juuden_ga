@@ -1889,6 +1889,10 @@
       }
 
       document.getElementById("clearSavedNameButton").addEventListener("click", clearSavedName);
+      nameInput.addEventListener("input", () => {
+        clearSavedNameStatusKey = null;
+        document.getElementById("clearSavedNameStatus").textContent = "";
+      });
       startBtn.addEventListener("click", handleStartRequest);
       restartBtn.addEventListener("click", handleStartRequest);
       retireBtn.addEventListener("click", retireGame);

@@ -784,6 +784,7 @@
         <div class="button-row">
           <button id="startBtn" class="btn primary" type="button" data-text="start">ゲームスタート</button>
           <button id="shareGameBtn" class="btn" type="button" data-text="shareX">Xでシェア</button>
+          <a id="homeRankingLink" class="btn" href="https://chameleonjp-lab.github.io/chameleonjp_lab/ranking.html?game=juden_ga" target="_blank" rel="noopener noreferrer" data-text="labRanking">ランキング</a>
           <a class="btn" href="https://chameleonjp.codeberg.page/chameleonjp_lab/" data-text="other">他のゲームで遊ぶ</a>
         </div>
       </div>
@@ -865,6 +866,7 @@
 
         <div id="resultButtons" class="button-row">
           <button id="shareResultBtn" class="btn" type="button" data-text="shareX">Xでシェア</button>
+          <a id="resultRankingLink" class="btn" href="https://chameleonjp-lab.github.io/chameleonjp_lab/ranking.html?game=juden_ga" target="_blank" rel="noopener noreferrer" data-text="labRanking">ランキング</a>
           <button id="restartBtn" class="btn primary" type="button" data-text="retry">再ゲーム</button>
           <button id="endBtn" class="btn" type="button" data-text="return">ゲーム終了（ホームへ戻る）</button>
         </div>
@@ -987,6 +989,7 @@
       Object.assign(localeText["vi"], {"shareX": "Chia sẻ trên X", "shareManualCopy": "Không mở được cửa sổ đăng bài. Hãy sao chép nội dung này."});
       Object.assign(localeText["th"], {"shareX": "แชร์บน X", "shareManualCopy": "เปิดหน้าต่างโพสต์ไม่ได้ โปรดคัดลอกข้อความนี้"});
 
+      for (const [id, label] of Object.entries({"ja":"ランキング","en":"Leaderboard","es":"Clasificación","pt-BR":"Ranking","zh-Hans":"排行榜","zh-Hant":"排行榜","fr":"Classement","de":"Rangliste","ko":"순위표","ru":"Рейтинг","it":"Classifica","id":"Papan peringkat","tr":"Sıralama","vi":"Bảng xếp hạng","th":"ตารางอันดับ"})) localeText[id].labRanking = label;
       const languageSelect = $("languageSelect");
       const languageKey = "juden-ga-language-v1";
       let locale = "ja";

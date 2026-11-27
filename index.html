@@ -1230,6 +1230,8 @@
       }
 
       function startGame() {
+      void import(/* @vite-ignore */ "https://chameleonjp-lab.github.io/chameleonjp_lab/play-start.js").then(module => module.recordPlayStart("juden_ga")).catch(() => {});
+
         clearTimer();
         cardId = 0;
         state = {
